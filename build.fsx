@@ -215,11 +215,27 @@ Target "Build" (fun _ ->
     failwith "building Zulib failed"
     )
 
+Target "Test" (fun _ ->
+    let fsharpi (fsx: string) =
+        if EnvironmentHelper.isWindows
+        then ProcessHelper.Shell.AsyncExec("fsi.exe", fsx)
+        else ProcessHelper.Shell.AsyncExec("fsharpi", fsx)
+
+    let tests = getFiles "tests/*.fsx"
+
+    let exitCodes = tests |> Array.map fsharpi
+                          |> Async.Parallel
+                          |> Async.RunSynchronously
+    if not (Array.forall ((=) 0) exitCodes)
+    then failwith "One or more tests failed"
+)
+
 Target "Default" ( fun _ ->
     Run "Clean"
     Run "Verify"
     Run "Extract"
     Run "Build"
+    Run "Test"
     )
 
 (*
