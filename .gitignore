@@ -1,0 +1,10 @@
+.paket/load
+paket-files
+packages
+output.mlpd
+nugets
+bin
+.fake
+fsharp/Extracted
+fstar/*.hints
+fstar/*.checked

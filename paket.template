@@ -1,0 +1,25 @@
+type file
+id Zulib
+version 0.0.1.10
+authors ZenProtocol
+description
+	Zen Protocol ZFStar standard library
+files
+	bin/Zulib.dll ==> lib
+	Zulib.targets ==> build
+        fstar/**/* ==> output/Zulib
+
+dependencies
+	BouncyCastle
+	FAKE ~> 4
+	FsBech32 >= 0.1.0.7
+	FsCheck
+	FSharp.Compatibility.OCaml
+	FSharpx.Collections
+	NUnit
+	Zen.FSharp.Compiler.Service 17.0.2
+	ZFStar 0.0.25
+
+	zen_z3_linux 4.5.1.8-v1f29cebd4df
+	zen_z3_osx 4.5.1.8-v1f29cebd4df6
+	zen_z3_windows 4.5.1.7-v1f29cebd4df
