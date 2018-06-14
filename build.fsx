@@ -1,12 +1,5 @@
-#I @".paket/load/"
-#I @"packages/"
-#load "System.Reflection.Metadata.fsx"
-#load "Zen.FSharp.Compiler.Service.fsx"
-#r @"FAKE/tools/FakeLib.dll"
-#r @"System.Reflection.Metadata/lib/portable-net45+win8/System.Reflection.Metadata.dll"
-//#r @"System.Reflection.Metadata/lib/netstandard1.1/System.Reflection.Metadata.dll"
-//#r @"FAKE/tools/FakeLib.dll"
-//#r @"Zen.FSharp.Compiler.Service/lib/net45/Zen.FSharp.Compiler.Service.dll"
+#r @"packages/FAKE/tools/FakeLib.dll"
+#r @"packages/Zen.FSharp.Compiler.Service/lib/net45/Zen.FSharp.Compiler.Service.dll"
 
 open Fake
 open System.IO
