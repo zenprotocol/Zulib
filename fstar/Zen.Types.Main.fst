@@ -12,9 +12,9 @@ val maxCost: nat
 let maxCost = 200
 
 type message =
-    { contractId: contractId;
+    { recipient: contractId;
       command: string;
-      data: option data }
+      body: option data }
 
 type sender =
     | PK of publicKey
