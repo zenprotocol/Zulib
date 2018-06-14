@@ -30,7 +30,7 @@ let private parseInt: array<byte> -> uint32 =
 
 let parse (value : Prims.string) : Cost.t<contractId FStar.Pervasives.Native.option, unit> =
     lazy (
-        if value.Length <> bytesLength then None else
+        if value.Length <> bytesLength * 2 then None else
         if not (Array.forall isHexChar value) then None else
         value |> Seq.map charToByte
               |> Seq.splitAt 4
