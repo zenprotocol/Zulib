@@ -22,7 +22,7 @@ build_script:
   - build.cmd Verify
   - build.cmd Extract
   - build.cmd Build
-  - paket.cmd pack --version %APPVEYOR_BUILD_VERSION% .
+  - .paket\paket.exe pack --version %APPVEYOR_BUILD_VERSION% .
 
 artifacts:
   - path: '*.nupkg'
