@@ -32,10 +32,12 @@ let parse (value : Prims.string) : Cost.t<contractId FStar.Pervasives.Native.opt
     lazy (
         if value.Length <> bytesLength * 2 then None else
         if not (Array.forall isHexChar value) then None else
-        value |> Seq.map charToByte
-              |> Seq.splitAt 4
+        value |> Array.map charToByte
+              |> Array.chunkBySize 2
+              |> Array.map (fun [|x; y|] -> x * 0x10uy + y)
+              |> Array.splitAt 4
               |> begin fun (first4, last32) ->
-                    parseInt (Array.ofSeq first4), Array.ofSeq last32
+                    parseInt first4, last32
                  end
               |> Some
     ) |> Cost.C
