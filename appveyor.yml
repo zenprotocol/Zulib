@@ -1,5 +1,7 @@
 image: Visual Studio 2017
 
+version: 0.0.{build}
+
 environment:
   MYGET_TOKEN:
     secure: deKebLALSKFBV5pPo4H6u1TZF0IC2Itlp9EpSACzlI1idYT+ldrkTXeGK5CniBQF
