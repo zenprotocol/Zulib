@@ -1,6 +1,5 @@
+#load @".paket/load/Zen.FSharp.Compiler.Service.fsx"
 #r @"packages/FAKE/tools/FakeLib.dll"
-#r @"packages/Zen.FSharp.Compiler.Service/lib/net45/Zen.FSharp.Compiler.Service.dll"
-
 open Fake
 open System.IO
 open Microsoft.FSharp.Compiler.SourceCodeServices
