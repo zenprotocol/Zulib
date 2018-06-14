@@ -1,4 +1,4 @@
-#I "../.paket/load"
+#I "../.paket/load/net47"
 #r "../bin/Zulib.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
