@@ -17,14 +17,37 @@ let private filler len =
     32 - len
     |> Array.zeroCreate
 
+let encodedBytesLength = 2 * ContractId.bytesLength
+
 let zeroHash = Array.zeroCreate 32
 
 let zenAsset : asset = 0ul, zeroHash, zeroHash
 
-let private decodeB16Bytes =
+let private decodeB16Bytes: Prims.string -> option< array<byte> > =
     System.Text.Encoding.ASCII.GetString >> Base16.decode
 
-let encodedBytesLength = 2 * ContractId.bytesLength
+let parse (value : Prims.string) : Cost.t<asset Native.option, unit> =
+    lazy (
+        if value = [| 0uy; 0uy |] then
+            Native.Some (0u, zeroHash, zeroHash)
+        else
+          let contractId = ContractId.fromString value.[0..encodedBytesLength-1] |> Cost.__force
+          match contractId with
+          | Native.Some (ver, cHash) ->
+              let subType =
+                  if Array.length value = encodedBytesLength
+                  then Some zeroHash
+                  else decodeB16Bytes value.[encodedBytesLength..]
+
+              match subType with
+              | Some subType ->
+                  Native.Some (ver, cHash, subType)
+              | None ->
+                  Native.None
+          | Native.None ->
+              Native.None
+    )
+    |> Cost.C
 
 let getDefault ((version,cHash) : contractId) : Cost.t<asset, unit> =
     lazy (version, cHash, zeroHash)
@@ -52,30 +75,5 @@ let fromSubtypeInt ((version,cHash) : contractId) (value : uint32) : Cost.t<asse
             bytes
             |> Array.append (filler (Array.length bytes))
         version, cHash, bytes
-    )
-    |> Cost.C
-
-let fromString (value : Prims.string) : Cost.t<asset Native.option, unit> =
-    lazy (
-        if value = [| 0uy; 0uy |] then
-            Native.Some (0u, zeroHash, zeroHash)
-        else
-          let contractId = ContractId.fromString value.[0..encodedBytesLength-1] |> Cost.__force
-          match contractId with
-          | Native.Some (ver, cHash) ->
-              let subType =
-                  if Array.length value = encodedBytesLength then
-                      Some zeroHash
-                  else
-                      match decodeB16Bytes value.[encodedBytesLength..] with
-                      | Some subType -> Some subType
-                      | None -> None
-              match subType with
-              | Some subType ->
-                  Native.Some (ver, cHash, subType)
-              | None ->
-                  Native.None
-          | Native.None ->
-              Native.None
     )
     |> Cost.C
