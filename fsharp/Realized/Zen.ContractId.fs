@@ -28,7 +28,7 @@ let private parseInt: array<byte> -> uint32 =
     then Array.rev >> toUInt32
     else toUInt32
 
-let fromString (value : Prims.string) : Cost.t<contractId FStar.Pervasives.Native.option, unit> =
+let parse (value : Prims.string) : Cost.t<contractId FStar.Pervasives.Native.option, unit> =
     lazy (
         if value.Length <> bytesLength then None else
         if not (Array.forall isHexChar value) then None else

@@ -31,7 +31,7 @@ let parse (value : Prims.string) : Cost.t<asset Native.option, unit> =
         if value = [| 0uy; 0uy |] then
             Native.Some (0u, zeroHash, zeroHash)
         else
-          let contractId = ContractId.fromString value.[0..encodedBytesLength-1] |> Cost.__force
+          let contractId = ContractId.parse value.[0..encodedBytesLength-1] |> Cost.__force
           match contractId with
           | Native.Some (ver, cHash) ->
               let subType =
