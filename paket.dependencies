@@ -20,6 +20,9 @@ nuget zen_z3_osx 4.5.1.8-v1f29cebd4df6
 nuget zen_z3_windows 4.5.1.7-v1f29cebd4df
 
 group MetadataFix
+    framework: 47 
+    generate_load_scripts: true
+
     source https://nuget.org/api/v2
 
     nuget System.Reflection.Metadata 1.4.1.0

@@ -1,4 +1,7 @@
-#load @".paket/load/Zen.FSharp.Compiler.Service.fsx"
+#I @".paket/load/net47"
+#I @"packages/"
+
+#load @"Zen.FSharp.Compiler.Service.fsx"
 #r @"packages/FAKE/tools/FakeLib.dll"
 open Fake
 open System.IO
