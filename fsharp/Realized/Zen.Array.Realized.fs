@@ -38,3 +38,17 @@ let init_item (_:Prims.nat) (_:Prims.nat)
               (_:(Prims.nat -> Cost.t<'a, unit>))
               (_:Prims.nat)
               : unit = ()
+
+let tryMap
+    (_:Prims.nat)
+    (_:Prims.nat)
+    (f: 'A -> Cost.t<FStar.Pervasives.Native.option<'B>, Prims.unit>)
+    (arr: indexed<'A, Prims.unit>)
+    : Cost.t<FStar.Pervasives.Native.option<indexed<'B, Prims.unit>>, Prims.unit> =
+    lazy ( List.ofArray arr
+           |> List.map (f >> Cost.__force)
+           |> List.fold (fun state mx -> match (state, mx) with
+                                         | Some state, Some x -> Some (x::state)
+                                         | _ -> None) (Some [])
+           |> Option.map (List.rev >> Array.ofList)
+    ) |> Cost.C
