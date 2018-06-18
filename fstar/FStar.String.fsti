@@ -38,7 +38,7 @@ val at:
                length_eqiv s; toChars s in
            let resultChars: Char.t `A.indexed` 1 =
                length_eqiv result; toChars result in
-           force (A.item 0 resultChars) == force (A.item n chars)
+           A.item 0 resultChars == A.item n chars
            end))
 
 private val strcat: string -> string -> string

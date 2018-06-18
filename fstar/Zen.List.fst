@@ -49,6 +49,50 @@ let rec force_append_length #_ l1 l2 = match l1 with
     | [] -> ()
     | hd::tl -> force_append_length tl l2
 
+val init_pure(#a:Type)(#n:nat):
+    l:nat
+    -> f:(i:nat{i < l} -> a `cost` n)
+    -> list a `cost` (l * (n + 2) + 2)
+let rec init_pure #_ #_ l f =
+    match l with
+    | 0 -> [] |> incRet 2
+    | _ -> Cons <$> f 0 <*> init_pure (l - 1) (fun i -> f (i + 1))
+           |> inc 2
+
+val init(#a:Type)(#n:nat):
+    l:nat
+    -> f:(nat -> a `cost` n)
+    -> list a `cost` (l * (n + 2) + 2)
+let init #_ #_ l f = init_pure l f
+
+val init_pure_force_cons(#a:Type)(#n:nat):
+    l:nat
+    -> f:(i:nat{i < l} -> a `cost` n)
+    -> Lemma (
+    let ls = init_pure l f in
+    match l with
+    | 0 -> force ls == []
+    | _ -> force ls == force (f 0) :: force (init_pure (l-1) (fun i -> f (i + 1)))
+    )
+let init_pure_force_cons #_ #_ l f =
+    match l with
+    | 0 -> ()
+    | _ ->
+        let tl = init_pure (l - 1) (fun i -> f (i + 1)) in
+        force_ap (Cons <$> f 0) tl;
+        assert(force (Cons <$> f 0 <*> tl) == force (f 0) :: force tl)
+
+val init_pure_length(#a:Type)(#n:nat):
+    l:nat
+    -> f:(i:nat{i < l} -> a `cost` n)
+    -> Lemma (let ls = init_pure l f in
+              length (force ls) == l)
+let rec init_pure_length #a #n l f =
+    init_pure_force_cons l f;
+    match l with
+    | 0 -> ()
+    | _ -> init_pure_length (l-1) (fun i -> f (i + 1))
+
 (* List Transformations *)
 val mapT(#a #b:Type)(#n:nat):
   (a -> b `cost` n)

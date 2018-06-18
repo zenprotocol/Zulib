@@ -3,8 +3,8 @@ module Zen.Base
 val id(#a:Type): a -> a
 let id(#_) x = x
 
-val const_(#a #b:Type): a -> b -> a
-let const_ #_ #_ x _ = x
+val konst(#a #b:Type): a -> b -> a
+let konst #_ #_ x _ = x
 
 val cast: a:Type -> a -> a
 let cast a x = x

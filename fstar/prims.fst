@@ -235,6 +235,8 @@ assume val op_Equality :    #a:Type{hasEq a} -> a -> a -> Tot bool
 assume val op_disEquality : #a:Type{hasEq a} -> a -> a -> Tot bool
 assume new type exn : Type0
 assume new type array : Type -> Type0
+assume Array_hasEq: forall (a:Type). {:pattern (hasEq (array a))}
+  hasEq a ==> hasEq (array a)
 assume val strcat : string -> string -> Tot string
 
 type list (a:Type) =

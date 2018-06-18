@@ -111,7 +111,7 @@ Target "Extract" (fun _ ->
        "--extract_module";"Zen.Option";
        "--extract_module";"Zen.OptionT";
        "--extract_module";"Zen.Optics";
-       "--extract_module";"Zen.Array.Extracted";
+       "--extract_module";"Zen.Array.Indexed";
        "--extract_module";"Zen.Cost.Extracted";
        "--codegen-lib";"Zen.Cost";
        "--extract_module";"Zen.List";
@@ -120,6 +120,8 @@ Target "Extract" (fun _ ->
        "--extract_module";"Zen.Types.Data";
        "--extract_module";"Zen.Types.Main";
        "--codegen-lib";"Zen.Types";
+       "--extract_module";"Zen.Hash.Base";
+       "--codegen-lib";"Zen.Hash"
        "--extract_module";"Zen.Data";
        "--extract_module";"Zen.ContractReturn";
        "--extract_module";"Zen.ContractResult";
@@ -153,10 +155,10 @@ Target "Build" (fun _ ->
       "fsharp/Extracted/Zen.OptionT.fs";
       "fsharp/Extracted/Zen.ResultT.fs";
       "fsharp/Extracted/Zen.List.fs";
-      "fsharp/Realized/Zen.Array.Realized.fs";
+      "fsharp/Realized/Zen.Array.Base.fs";
       "fsharp/Realized/FStar.String.fs";
       "fsharp/Realized/Zen.Dictionary.fs";
-      "fsharp/Extracted/Zen.Array.Extracted.fs";
+      "fsharp/Extracted/Zen.Array.Indexed.fs";
       "fsharp/Extracted/Zen.Types.Extracted.fs";
       "fsharp/Extracted/Zen.Types.Data.fs";
       "fsharp/Realized/Zen.Types.Realized.fs";
@@ -172,6 +174,7 @@ Target "Build" (fun _ ->
       "fsharp/Extracted/Zen.ContractResult.fs";
       "fsharp/Realized/Zen.Hash.Sha3.fs";
       "fsharp/Realized/Zen.Crypto.fs";
+      "fsharp/Extracted/Zen.Hash.Base.fs";
       "fsharp/Realized/Zen.MerkleTree.fs";
       "fsharp/Realized/Zen.Bitcoin.fs";
     |]

@@ -4,7 +4,7 @@ open FSharp.Core.Operators.Checked
 
 module Char = FStar.Char
 module Cost = Zen.Cost.Realized
-module Array = Zen.Array.Realized
+module Array = Zen.Array.Base
 
 type string = Prims.string
 type t = Prims.string
