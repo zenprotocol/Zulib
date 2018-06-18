@@ -4,6 +4,11 @@ let private findSplitIndex (length: Prims.nat): Prims.nat =
     Seq.initInfinite (fun i -> pown 2L i)
     |> Seq.find (fun i -> i * 2L >= length)
 
+let innerHasher = 
+    Zen.Hash.Sha3.empty
+    |> Zen.Hash.Sha3.updateByte 105uy // 'i'
+    |> Zen.Cost.Realized.__force
+  
 let verify (root: Zen.Types.Extracted.hash)
            (auditPath: Prims.list<Zen.Types.Extracted.hash>)
            (index: Prims.nat)
@@ -30,7 +35,7 @@ let verify (root: Zen.Types.Extracted.hash)
                                             |> Zen.Cost.Realized.__force
                             head,rightHash
 
-                    Zen.Hash.Sha3.empty
+                    innerHasher
                     |> Zen.Hash.Sha3.updateHash leftHash
                     |> Zen.Cost.Realized.__force
                     |> Zen.Hash.Sha3.updateHash rightHash
