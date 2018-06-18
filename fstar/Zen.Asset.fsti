@@ -19,7 +19,7 @@ val parse:
 
 val fromSubtypeString:
     contractId
-    -> s:string { S.length s <= 29 }
+    -> s:string { S.length s <= 32 }
     -> asset `cost` 64
 
 val fromSubtypeInt:
