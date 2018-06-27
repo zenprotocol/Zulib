@@ -1,3 +1,3 @@
 module Zen.Util
 
-val debug : 'a -> 'a
+//val debug : 'a -> 'a

@@ -1,9 +1,8 @@
 module Zen.Cost.Realized
 
 open Zen.Base
-abstract type cost (a:Type) (n:nat) =
+abstract noeq type cost (a:Type) (n:nat) =
   | C : inj:a -> cost a n
-assume Cost_hasEq: forall a n. hasEq a ==>  hasEq (cost a n)
 
 type t (a:Type) (n:nat) = cost a n
 
