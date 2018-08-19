@@ -5,5 +5,5 @@ mono packages/ZFStar/tools/fstar.exe \
      --prims fstar/prims.fst \
      --no_default_includes \
      --include $PWD/fstar \
-     --cache_checked_modules \
+     --use_cached_modules \
      $@

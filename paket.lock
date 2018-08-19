@@ -7,12 +7,12 @@ NUGET
     FsBech32 (0.1.0.7)
       FSharp.Compiler.Tools
       FSharp.Core
-    FsCheck (2.10.10)
+    FsCheck (2.11)
       FSharp.Core (>= 4.0.0.1)
     FSharp.Compatibility.OCaml (0.1.14)
       FSharp.Core (>= 4.3.4)
     FSharp.Compiler.Tools (10.0.2)
-    FSharp.Core (4.3.4)
+    FSharp.Core (4.5.2)
     FSharpx.Collections (1.17)
       FSharp.Core
     NUnit (3.10.1)
