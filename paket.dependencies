@@ -2,12 +2,14 @@ framework: 47
 generate_load_scripts: true
 
 source https://nuget.org/api/v2
+clitool dotnet-fake
 
 nuget BouncyCastle
-nuget FAKE ~> 4
 nuget FsBech32 >= 0.1.0.7
 nuget FsCheck
-nuget FSharp.Compatibility.OCaml
+nuget FSharp.Compatibility.OCaml 0.1.14
+nuget FSharpPlus 1.0.0
+nuget FSharpx.Extras
 nuget FSharpx.Collections
 nuget NUnit
 nuget Zen.FSharp.Compiler.Service 17.0.2
@@ -20,10 +22,25 @@ nuget zen_z3_osx 4.5.1.8-v1f29cebd4df6
 nuget zen_z3_windows 4.5.1.7-v1f29cebd4df
 
 group MetadataFix
-    framework: 47 
+    framework: 47
     generate_load_scripts: true
 
     source https://nuget.org/api/v2
 
     nuget System.Reflection.Metadata 1.4.1.0
+
+group FakeBuild
+	framework: 47
+    generate_load_scripts: true
+
+	source https://nuget.org/api/v2
+	
+	nuget FAKE 5.3.0
+    nuget Fake.IO.Zip 5.4.0
+    nuget FAKE.IO.FileSystem 5.4.0
+	nuget Fake.Core.Context 5.4.0
+	nuget Fake.Core.Process 5.4.0
+	nuget Fake.Core.Target 5.4.0
+	nuget Fake.Core.Trace 5.4.0
+	nuget Fake.Core.CommandLineParsing 5.4.0
 
