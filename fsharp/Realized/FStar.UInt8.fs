@@ -12,8 +12,8 @@ type uint8 = System.Byte
 type byte = uint8
 type t = uint8
 
-let v (x:uint8): uint_t = Prims.parse_int (x.ToString())
-let uint_to_t s : uint8 = uint8.Parse(s.ToString())
+let v: uint8 -> uint_t = Checked.int64
+let uint_to_t: uint_t -> uint8 = Checked.byte
 
 let add (a:uint8) (b:uint8) : uint8 = a + b
 let add_mod a b = add a b

@@ -11,8 +11,8 @@ type int_t = Prims.int
 type int64 = System.Int64
 type t = int64
 
-let v (x:int64): int_t = Prims.parse_int (x.ToString())
-let int_to_t s : int64 = int64.Parse(s.ToString())
+let v: int64 -> int_t = Checked.int64
+let uint_to_t: int_t -> int64 = Checked.int64
 
 let add (a:int64) (b:int64) : int64 = a + b
 let add_mod a b = add a b
