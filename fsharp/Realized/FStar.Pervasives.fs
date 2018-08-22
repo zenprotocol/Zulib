@@ -5,7 +5,7 @@ open Prims
 
 module Native =
     begin
-    type 'Aa option = 'Aa Microsoft.FSharp.Core.option
+    type 'Aa option = 'Aa Core.option
 
     let (|Some|None|) option =
         match option with

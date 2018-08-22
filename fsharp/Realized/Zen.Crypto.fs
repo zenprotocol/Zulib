@@ -2,7 +2,9 @@ module Zen.Crypto
 
 open System.Runtime.InteropServices
 open FsBech32
+open Operators.Checked
 open Zen.Types.Extracted
+
 
 module Cost = Zen.Cost.Realized
 
@@ -52,37 +54,48 @@ let private isBase16Char (c: byte): bool =
     || ('A'B <= c && c <= 'F'B)
     || ('a'B <= c && c <= 'f'B)
 
-let private b16ToByte: byte -> byte = function
-    | c when '0'B <= c && c <= '9'B -> c - '0'B
-    | c when 'A'B <= c && c <= 'F'B -> c - 'A'B + 10uy
-    | c when 'a'B <= c && c <= 'f'B -> c - 'a'B + 10uy
-    | _ -> failwith "Not a valid base 16 char"
+let private b16ToByte: byte -> option<byte> = function
+    | c when '0'B <= c && c <= '9'B -> Some (c - '0'B)
+    | c when 'A'B <= c && c <= 'F'B -> Some (c - 'A'B + 10uy)
+    | c when 'a'B <= c && c <= 'f'B -> Some (c - 'a'B + 10uy)
+    | _ -> None
 
-let private b16ToBytes: byte array -> byte array =
-    Array.map b16ToByte
-    >> Array.chunkBySize 2
-    >> Array.map (fun [|hi; lo|] -> hi * 16uy + lo)
+let private pairToByte (hi: byte) (lo: byte): byte = hi * 16uy + lo
 
-let parsePublicKey (bs16:byte array) : Cost.t<FStar.Pervasives.Native.option<publicKey>, unit> =
-    lazy (
-        let bs16 = System.Text.Encoding.ASCII.GetString bs16
-        match Base16.decode bs16 with
-        | None -> FStar.Pervasives.Native.None
-        | Some bytes ->
-            if Array.length bytes <> 33 then
-                FStar.Pervasives.Native.None
-            else
-                let publicKey = Array.create 64 0uy
+let private b16ToBytes: byte[] -> option<byte[]> =
+    let rec aux (acc: option<list<byte>>) (bs: list<byte>): option<list<byte>> =
+        match acc, bs with
+        | Some acc, hi::lo::tl ->
+            let acc' = Option.map2 pairToByte (b16ToByte hi) (b16ToByte lo)
+                       |> Option.map (fun b -> b::acc)
+            aux acc' tl
+        | acc, [] -> acc
+        | _ -> None
+    List.ofArray
+    >> aux (Some [])
+    >> Option.map (Array.ofList >> Array.rev)
 
-                match Native.secp256k1_ec_pubkey_parse(context, publicKey, bytes, 33ul) with
-                | Native.Result.Ok -> FStar.Pervasives.Native.Some publicKey
-                | _ -> FStar.Pervasives.Native.None
+let private b16Decode (b16: string): option<byte[]> =
+    try Base16.decode b16 with | Failure _ -> None
+
+let private tryPublicKey (bs: byte[]): option<publicKey> =
+    if Array.length bs <> 33 then None else
+    let pk = Array.create 64 0uy
+    match Native.secp256k1_ec_pubkey_parse(context, pk, bs, 33ul) with
+    | Native.Result.Ok -> Some pk
+    | _ -> None
+
+let parsePublicKey (b16: Prims.string): Cost.t< option<publicKey>, unit > =
+    lazy ( if Array.length b16 % 2 <> 0 then None else
+           if Array.exists (not << isBase16Char) b16 then None else
+           Array.map char b16
+           |> System.String
+           |> b16Decode
+           |> (fun mx -> Option.bind mx tryPublicKey)
     ) |> Cost.C
 
-let parseHash (s: Prims.string): Cost.t<FStar.Pervasives.Native.option<byte []>, unit> =
-    lazy (
-        if s.Length <> 64 then FStar.Pervasives.Native.None else
-        if not <| Array.forall isBase16Char s then FStar.Pervasives.Native.None else
-        s |> b16ToBytes
-          |> FStar.Pervasives.Native.Some
+let parseHash (s: Prims.string): Cost.t<option<byte []>, unit> =
+    lazy ( if s.Length <> 64 then None else
+           if Array.exists (not << isBase16Char) s then None else
+           b16ToBytes s
     ) |> Cost.C
