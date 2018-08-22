@@ -8,4 +8,4 @@ val verify:
     -> auditPath: list hash
     -> index: nat
     -> h: hash
-    -> hash `cost` (length auditPath * 420 + 4)
+    -> bool `cost` (length auditPath * 420 + 4)
