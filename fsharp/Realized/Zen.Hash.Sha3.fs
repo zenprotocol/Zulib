@@ -129,3 +129,66 @@ let finalize (sha3:t): Cost.t<hash, unit> =
         hash
     )
     |> Cost.C
+
+let ofHash (h:hash): Cost.t<hash, unit> =
+    lazy (
+        empty |> updateHash h
+              |> Cost.__force |> finalize |> Cost.__force
+    )
+    |> Cost.C
+
+let ofAsset (asset:asset): Cost.t<hash, unit> =
+    lazy (
+        empty |> updateAsset asset
+              |> Cost.__force |> finalize |> Cost.__force
+    )
+    |> Cost.C
+
+let ofOutpoint (outpoint:outpoint): Cost.t<hash, unit> =
+    lazy (
+        empty |> updateOutpoint outpoint
+              |> Cost.__force |> finalize |> Cost.__force
+    )
+    |> Cost.C
+
+let ofByte (b:U8.t): Cost.t<hash, unit> =
+    lazy (
+        empty |> updateByte b
+              |> Cost.__force |> finalize |> Cost.__force
+    )
+    |> Cost.C
+
+let ofU32 (value:U32.t): Cost.t<hash, unit> =
+    lazy (
+        empty |> updateU32 value
+              |> Cost.__force |> finalize |> Cost.__force
+    )
+    |> Cost.C
+
+let ofU64 (value:U64.t): Cost.t<hash, unit> =
+    lazy (
+        empty |> updateU64 value
+              |> Cost.__force |> finalize |> Cost.__force
+    )
+    |> Cost.C
+
+let ofI64 (value:I64.t): Cost.t<hash, unit> =
+    lazy (
+        empty |> updateI64 value
+              |> Cost.__force |> finalize |> Cost.__force
+    )
+    |> Cost.C
+
+let ofString (s:S.t): Cost.t<hash, unit> =
+    lazy (
+        empty |> updateString s
+              |> Cost.__force |> finalize |> Cost.__force
+    )
+    |> Cost.C
+
+let ofByteArray (n:Prims.nat) (bs:U8.t array): Cost.t<hash, unit> =
+    lazy (
+        empty |> updateByteArray n bs
+              |> Cost.__force |> finalize |> Cost.__force
+    )
+    |> Cost.C
