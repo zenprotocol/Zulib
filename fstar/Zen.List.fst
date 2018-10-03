@@ -2,7 +2,9 @@ module Zen.List
 
 open Zen.Base
 open Zen.Cost
+
 module OT = Zen.OptionT
+module P = Prims
 
 type t : Type -> Type = list
 
@@ -25,8 +27,8 @@ let cons #_ hd tl = hd::tl
 val (::) (#a:Type): a -> list a -> list a
 let (::) #_ = cons
 
-val isNull (#a:Type): list a -> bool
-let isNull #_ = Nil?
+(* val isNull (#a:Type): list a -> bool
+let isNull #_ = Nil? *)
 
 val append(#a:Type):
     l1:list a
@@ -270,6 +272,30 @@ let max ls = foldT (fun max x -> (if x > max then x else max) |> incRet 3)
                    ls
               |> inc 3
 
+val maxBy (#a #b:Type):
+    (a -> int)
+    -> ls: list a { length ls > 0 }
+    -> int `cost` (length ls * 9 + 9)
+let maxBy #_ #_ f ls =
+    force_map_length f ls;
+    bind_dep (map f ls) (fun values ->
+    max values <: cost int (length ls * 7 + 7))
+
+val min : ls:list int{length ls > 0} -> int `cost` (length ls * 7 + 7)
+let min ls = foldT (fun min x -> (if x < min then x else min) |> incRet 3)
+                   (head ls)
+                   ls
+              |> inc 3
+
+val minBy (#a #b:Type):
+    (a -> int)
+    -> ls: list a { length ls > 0 }
+    -> int `cost` (length ls * 9 + 9)
+let minBy #_ #_ f ls =
+    force_map_length f ls;
+    bind_dep (map f ls) (fun values ->
+    min values <: cost int (length ls * 7 + 7))
+
 val nth(#a:Type): ls:list a -> n:nat{n < length ls} -> a `cost` (2 * n + 2)
 let rec nth #_ (hd::tl) n =
     if n = 0 then hd |> incRet 2
@@ -280,3 +306,75 @@ let rec tryNth #_ ls n =
     if n < length ls
     then nth ls n >>= OT.some |> inc 5
     else OT.incNone (2 * n + 7)
+
+val filter(#a:Type):
+    (a -> bool)
+    -> ls: list a
+    -> list a `cost` (4 * length ls + 4)
+let filter #_ f = fold (fun r x -> if f x then x :: r else r) []
+
+val sumNat: ls:list nat -> nat `cost` (length ls * 4 + 4)
+let sumNat =
+    let (+) (x : nat) (y : nat) : nat = x + y
+    in fold (+) 0
+
+val sumByNat (#a:Type):
+    (a -> n:nat)
+    -> ls: list a
+    -> nat `cost` (length ls * 6 + 6)
+let sumByNat #_ f ls =
+    force_map_length f ls;
+    map f ls `bind_dep` (fun values ->
+    sumNat values <: cost nat (length ls * 4 + 4))
+
+val foldrT_dep_cf (a s:Type) (c:a -> nat):
+    ls:list a -> GTot nat
+let foldrT_dep_cf a s c ls = force (
+    let! r = sumByNat c ls
+    in ret <| r + length ls * 4 + 4
+    )
+
+val foldrT_dep(#a #s:Type)(#c:a -> nat):
+    (x:a -> r:s -> s `cost` c x)
+    -> b:s
+    -> ls:list a
+    -> Tot (s `cost` foldrT_dep_cf a s c ls)
+           (decreases (length ls))
+let rec foldrT_dep #a #s #c f r = function
+    | [] -> ret r |> inc (foldrT_dep_cf a s c [])
+    | hd::tl ->
+        let! r = f hd r in
+        foldrT_dep f r tl |> inc 4
+
+(* val concat (#a:Type):
+    ls: list (list a)
+    (* -> list a `cost` (length ls * ((2 * (force (max (force (map length ls)))) + 2) + 4) + 4) *)
+    -> list a `cost` (length ls * (n + 4) + 4)
+(* let concat #a ls = foldT (++) [] ls *)
+let rec concat #_ ls = match ls with
+    | []       -> ret []
+    | (hd::tl) ->
+        let! tl' = concat tl
+        in ret (hd ++ tl') *)
+
+(* val zip(#a #b:Type):
+    ls1 : list a
+    -> ls2 : list b
+    -> list (a ** b) `cost` (P.min (length ls1) (length ls2) * 20 + 20)
+let rec zip #a #_ ls1 ls2 = (match (ls1, ls2) with
+    | ([], _) -> ret []
+    | (_, []) -> ret []
+    | ((x::xs), (y::ys)) ->
+        let (xs: list a) = xs in
+        let! r = zip xs ys
+        in ret ((x,y) :: r))
+        |> inc 20 *)
+
+(* unfold val (++) (#a:Type): l1:list a -> list a -> list a `cost` (2 * length l1 + 2)
+
+val foldT(#a #s:Type)(#n:nat):
+    (s -> a -> s `cost` n)
+    -> s
+    -> ls:list a
+    -> Tot (s `cost` (length ls * (n + 4) + 4))
+           (decreases (length ls)) *)
