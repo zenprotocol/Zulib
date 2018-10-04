@@ -1,8 +1,8 @@
-module FStar.Pervasives
+module Zen.Pervasives
 
 (* This is a file from the core library, dependencies must be explicit *)
 open Prims
-include FStar.Pervasives.Native
+include Zen.Pervasives.Native
 
 noeq type result (a:Type) =
   | OK   : v:a -> result a

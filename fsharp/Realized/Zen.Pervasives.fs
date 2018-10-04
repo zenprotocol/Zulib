@@ -1,5 +1,5 @@
 #light "off"
-module FStar.Pervasives
+module Zen.Pervasives
 open FSharp.Compatibility.OCaml.Pervasives
 open Prims
 

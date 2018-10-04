@@ -1,8 +1,8 @@
-module FStar.String
+module Zen.String
 
 open FSharp.Core.Operators.Checked
 
-module Char = FStar.Char
+module Char = Zen.Char
 module Cost = Zen.Cost.Realized
 module Array = Zen.Array.Base
 

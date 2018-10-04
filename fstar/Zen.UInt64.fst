@@ -1,4 +1,4 @@
-module FStar.UInt64
+module Zen.UInt64
 
 open Zen.Integers
 open Zen.Option

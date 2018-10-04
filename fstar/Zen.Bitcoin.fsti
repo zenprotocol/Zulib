@@ -4,8 +4,8 @@ open Zen.Base
 open Zen.Cost
 open Zen.Types
 
-module U8 = FStar.UInt8
-module U32 = FStar.UInt32
+module U8 = Zen.UInt8
+module U32 = Zen.UInt32
 module A = Zen.Array
 
 type bitcoinHeader = A.indexed U8.byte 80

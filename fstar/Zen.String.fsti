@@ -1,10 +1,10 @@
-module FStar.String
+module Zen.String
 
 open Zen.Base
 open Zen.Cost
 module A = Zen.Array
-module Char = FStar.Char
-module Byte = FStar.UInt8
+module Char = Zen.Char
+module Byte = Zen.UInt8
 
 type t = string
 

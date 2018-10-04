@@ -5,7 +5,7 @@ open Zen.Cost
 open Zen.Types
 
 module W = Zen.Wallet
-module U64 = FStar.UInt64
+module U64 = Zen.UInt64
 
 val getAvailableTokens: asset -> txSkeleton -> U64.t `cost` 64
 

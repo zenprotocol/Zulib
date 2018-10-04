@@ -8,13 +8,13 @@ module Cost = Zen.Cost.Realized
 
 let bytesLength = 4 + 32
 
-let private charToByte: FStar.Char.t -> byte = function
+let private charToByte: Zen.Char.t -> byte = function
     | c when 'A'B <= c && c <= 'F'B -> c - 'A'B + 0x0Auy
     | c when 'a'B <= c && c <= 'f'B -> c - 'a'B + 0x0auy
     | c when '0'B <= c && c <= '9'B -> c - '0'B
     | _ -> failwith "Not a valid hex character"
 
-let private isHexChar: FStar.Char.t -> bool = function
+let private isHexChar: Zen.Char.t -> bool = function
     | c when ('A'B <= c && c <= 'F'B) ||
              ('a'B <= c && c <= 'f'B) ||
              ('0'B <= c && c <= '9'B)
@@ -28,7 +28,7 @@ let private parseInt: array<byte> -> uint32 =
     then Array.rev >> toUInt32
     else toUInt32
 
-let parse (value : Prims.string) : Cost.t<contractId FStar.Pervasives.Native.option, unit> =
+let parse (value : Prims.string) : Cost.t<contractId Zen.Pervasives.Native.option, unit> =
     lazy (
         if value.Length <> bytesLength * 2 then None else
         if not (Array.forall isHexChar value) then None else

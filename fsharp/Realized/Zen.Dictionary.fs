@@ -1,6 +1,6 @@
 module Zen.Dictionary
 
-module S = FStar.String
+module S = Zen.String
 module Cost = Zen.Cost.Realized
 
 
@@ -34,10 +34,10 @@ let remove (s:S.t) ((d, n):dictionary<'a>) : Cost.t<dictionary<'a>, unit> =
     |> Cost.C
 
 let tryFind (s:S.t) ((d, _):dictionary<'a>)
-    : Cost.t<FStar.Pervasives.Native.option<'a>, unit> =
+    : Cost.t<Zen.Pervasives.Native.option<'a>, unit> =
     lazy (
         d |> Map.tryFind s
-          |> function | None -> FStar.Pervasives.Native.None
-                      | Some x -> FStar.Pervasives.Native.Some x
+          |> function | None -> Zen.Pervasives.Native.None
+                      | Some x -> Zen.Pervasives.Native.Some x
     )
     |> Cost.C

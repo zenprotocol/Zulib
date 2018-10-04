@@ -1,8 +1,8 @@
-module FStar.UInt8
+module Zen.UInt8
 //open Prims
 
 module Checked = FSharp.Core.Operators.Checked
-open FStar.Pervasives.Native
+open Zen.Pervasives.Native
 
 let fits (x: Prims.int): bool = 0L <= x && x <= 0xFFL
 let size (x: Prims.int): unit = ()

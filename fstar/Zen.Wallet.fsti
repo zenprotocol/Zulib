@@ -4,7 +4,7 @@ open Zen.Types
 open Zen.Option
 open Zen.Cost
 
-module U64 = FStar.UInt64
+module U64 = Zen.UInt64
 
 type t = wallet
 

@@ -1,7 +1,7 @@
-module FStar.Char
+module Zen.Char
 
 open Zen.Cost
-module Byte = FStar.UInt8
+module Byte = Zen.UInt8
 
 type char = Byte.t
 type t = char

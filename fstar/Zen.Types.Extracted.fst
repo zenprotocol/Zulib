@@ -1,9 +1,9 @@
 module Zen.Types.Extracted
 
 module      A = Zen.Array
-module     U8 = FStar.UInt8
-module    U32 = FStar.UInt32
-module    U64 = FStar.UInt64
+module     U8 = Zen.UInt8
+module    U32 = Zen.UInt32
+module    U64 = Zen.UInt64
 
 type byte = U8.byte
 type opcode = U8.t

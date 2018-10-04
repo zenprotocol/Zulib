@@ -5,11 +5,11 @@ open Org.BouncyCastle.Crypto.Digests
 open Zen.Types.Extracted
 
 module Cost = Zen.Cost.Realized
-module I64 = FStar.Int64
-module U8  = FStar.UInt8
-module U32 = FStar.UInt32
-module U64 = FStar.UInt64
-module S = FStar.String
+module I64 = Zen.Int64
+module U8  = Zen.UInt8
+module U32 = Zen.UInt32
+module U64 = Zen.UInt64
+module S = Zen.String
 
 type t = Sha3Digest
 

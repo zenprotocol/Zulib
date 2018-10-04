@@ -8,7 +8,7 @@ open System
 
 module C = Zen.Cost.Realized
 module P = Prims
-module S = FStar.String
+module S = Zen.String
 module Checked = Operators.Checked
 
 let zToFS: S.t -> string =
