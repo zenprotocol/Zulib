@@ -154,7 +154,16 @@ unfold let op_Less_Equals_Hat = lte
 assume val to_string: t -> string
 assume val of_string: string -> t
 
+#set-options "--lax"
+//This private primitive is used internally by the
+//compiler to translate bounded integer constants
+//with a desugaring-time check of the size of the number,
+//rather than an expensive verifiation check.
+//Since it is marked private, client programs cannot call it directly
+//Since it is marked unfold, it eagerly reduces,
+//eliminating the verification overhead of the wrapper
 private
 unfold
-let __uint_to_t (x:int) : t
-    = uint_to_t x
+let __int_to_t (x:int) : Tot t
+    = int_to_t x
+#reset-options
