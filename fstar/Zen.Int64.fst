@@ -153,3 +153,8 @@ unfold let op_Less_Equals_Hat = lte
 (* To input / output constants *)
 assume val to_string: t -> string
 assume val of_string: string -> t
+
+private
+unfold
+let __uint_to_t (x:int) : t
+    = uint_to_t x
