@@ -61,7 +61,13 @@ let op_Greater_Equals_Hat = gte
 let op_Less_Hat = lt
 let op_Less_Equals_Hat = lte
 
-let of_string s = int s
-let to_string s = s.ToString()
+// Converts a string to a byte array
+let private fsharpStringConvert (s: Core.string): Core.byte Core.array =
+    s.ToCharArray() |> Collections.Array.map Checked.byte
+// Converts a byte array to a string
+let private fstarStringConvert: Core.byte Core.array -> Core.string =
+    Collections.Array.map Checked.char >> System.String
+let of_string (s : Prims.string) : uint64 = Checked.uint64 (fstarStringConvert s)
+let to_string (x : uint64) : Prims.string = fsharpStringConvert (x.ToString())
 //let to_string_hex s = Printf.sprintf "%02x" s
 //let to_int s = s
