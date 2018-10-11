@@ -4,11 +4,9 @@ open Zen.Base
 open Zen.Cost
 module A = Zen.Array
 module Char = Zen.Char
-module Byte = Zen.UInt8
 
 type t = string
 
-val strlen: string -> nat
 let length = strlen
 
 val string_is_bytearray: unit -> Lemma (string == A.t Char.t)

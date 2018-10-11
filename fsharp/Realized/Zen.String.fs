@@ -9,8 +9,8 @@ module Array = Zen.Array.Base
 type string = Prims.string
 type t = Prims.string
 
-let strlen (s:string) : Prims.nat = int64 (s.Length)
-let length = strlen
+// let strlen (s:string) : Prims.nat = int64 (s.Length)
+let length = Prims.strlen
 
 let string_is_bytearray (): Prims.unit = ()
 

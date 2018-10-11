@@ -17,7 +17,7 @@ let zToFS: S.t -> string =
 
 type StringProperties =
     static member ``zstrlen is string length`` (s: S.t) =
-        S.strlen s = int64 (s.Length)
+        P.strlen s = int64 (s.Length)
     static member ``zlength is string length`` (s: S.t) =
         S.length s = int64 (s.Length)
 

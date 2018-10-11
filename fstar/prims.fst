@@ -237,7 +237,7 @@ assume new type exn : Type0
 assume new type array : Type -> Type0
 assume Array_hasEq: forall (a:Type). {:pattern (hasEq (array a))}
   hasEq a ==> hasEq (array a)
-assume val strcat : string -> string -> Tot string
+//assume val strcat : string -> string -> Tot string
 
 type list (a:Type) =
   | Nil  : list a
@@ -331,3 +331,7 @@ val length(#a:Type): list a -> nat
 let rec length #_ = function
   | [] -> 0
   | _::tl -> length tl + 1
+
+(* Putting strlen in Zen.String causes circular dependency:
+    Zen.UInt8 => Zen.String => Zen.Char => Zen.UInt8 *)
+assume val strlen: string -> nat

@@ -67,7 +67,7 @@ let private fsharpStringConvert (s: Core.string): Core.byte Core.array =
 // Converts a byte array to a string
 let private fstarStringConvert: Core.byte Core.array -> Core.string =
     Collections.Array.map Checked.char >> System.String
-let of_string (s : Prims.string) : uint32 = Checked.uint32 (fstarStringConvert s)
-let to_string (x : uint32) : Prims.string = fsharpStringConvert (x.ToString())
+let show (s : Prims.string) : uint32 = Checked.uint32 (fstarStringConvert s)
+let read (x : uint32) : Prims.string = fsharpStringConvert (x.ToString())
 //let to_string_hex s = Printf.sprintf "%02x" s
 //let to_int s = s

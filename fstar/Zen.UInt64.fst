@@ -3,6 +3,8 @@ module Zen.UInt64
 open Zen.Integers
 open Zen.Option
 
+module S = Zen.String
+
 let fits (x:int): bool = 0 <= x && x <= 18446744073709551615
 let size (x:int): Type0 = b2t(fits x)
 type uint_t = x:int{size x}
@@ -156,8 +158,9 @@ unfold let op_Less_Hat = lt
 unfold let op_Less_Equals_Hat = lte
 
 (* To input / output constants *)
-assume val to_string: t -> s:string { 1 <= length s /\ length s <= 20 }
-assume val of_string: string -> t
+assume val show: t -> s:string { 1 <= strlen s /\ strlen s <= 20 }
+assume val showPad: t -> s:string { strlen s = 20 }
+assume val read: string -> t
 #set-options "--lax"
 //This private primitive is used internally by the
 //compiler to translate bounded integer constants
