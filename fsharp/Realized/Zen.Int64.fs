@@ -64,10 +64,19 @@ let op_Less_Equals_Hat = lte
 // Converts a string to a byte array`
 let private fsharpStringConvert (s: Core.string): Core.byte Core.array =
     s.ToCharArray() |> Collections.Array.map Checked.byte
+
 // Converts a byte array to a string
 let private fstarStringConvert: Core.byte Core.array -> Core.string =
     Collections.Array.map Checked.char >> System.String
-let show (s : Prims.string) : int64 = Checked.int64 (fstarStringConvert s)
-let read (x : int64) : Prims.string = fsharpStringConvert (x.ToString())
+
+let show (x : int64) : Prims.string = fsharpStringConvert (x.ToString())
+
+let showPad (x : int64) : Prims.string =
+    if x < 0L
+        then fsharpStringConvert (x.ToString("D19"))
+        else fsharpStringConvert (x.ToString("D20"))
+
+let read (s : Prims.string) : int64 = Checked.int64 (fstarStringConvert s)
+
 //let to_string_hex s = Printf.sprintf "%02x" s
 //let to_int s = s
