@@ -6,4 +6,5 @@ mono packages/ZFStar/tools/fstar.exe \
      --no_default_includes \
      --include $PWD/fstar \
      --use_cached_modules \
+     --use_hints \
      $@
