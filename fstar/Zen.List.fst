@@ -2,9 +2,7 @@ module Zen.List
 
 open Zen.Base
 open Zen.Cost
-
 module OT = Zen.OptionT
-module P = Prims
 
 type t : Type -> Type = list
 
@@ -26,6 +24,9 @@ let cons #_ hd tl = hd::tl
 
 val (::) (#a:Type): a -> list a -> list a
 let (::) #_ = cons
+
+val isNull (#a:Type): list a -> bool
+let isNull #_ = Nil?
 
 val append(#a:Type):
     l1:list a
@@ -201,7 +202,10 @@ let fold #_ #_ f = foldT (fun state x -> f state x |> ret)
 
 (* Special Folds *)
 val sum: ls:list int -> int `cost` (length ls * 4 + 4)
-let sum = fold (+) 0
+let rec sum ls =
+    match ls with
+    | [] -> 0 |> incRet 4
+    | hd :: tl -> let! r = sum tl in hd + r |> incRet 4
 
 val sumBy(#a:Type):
     (a -> int)
@@ -222,7 +226,10 @@ let sumByT #_ #n f ls =
     sum values <: cost int (length ls * 4 + 4))
 
 val or_: ls : list bool -> bool `cost` (length ls * 4 + 4)
-let or_ = fold ( || ) true
+let rec or_ ls =
+    match ls with
+    | [] -> false |> incRet 4
+    | hd :: tl -> let! r = or_ tl in (hd || r) |> incRet 4
 
 val any(#a:Type):
     (a -> bool)
@@ -243,7 +250,11 @@ let anyT #_ #n f ls =
     or_ values <: cost bool (length ls * 4 + 4))
 
 val and_: ls: list bool -> bool `cost` (length ls * 4 + 4)
-let and_ = fold ( && ) true
+let rec and_ ls =
+    match ls with
+    | [] -> true |> incRet 4
+    | hd :: tl -> let! r = and_ tl in (hd && r) |> incRet 4
+
 
 val all(#a:Type):
     (a -> bool)
@@ -264,34 +275,13 @@ let allT #_ #n f ls =
     and_ values <: cost bool (length ls * 4 + 4))
 
 val max : ls:list int{length ls > 0} -> int `cost` (length ls * 7 + 7)
-let max ls = foldT (fun max x -> (if x > max then x else max) |> incRet 3)
-                   (head ls)
-                   ls
-              |> inc 3
-
-val maxBy (#a #b:Type):
-    (a -> int)
-    -> ls: list a { length ls > 0 }
-    -> int `cost` (length ls * 9 + 9)
-let maxBy #_ #_ f ls =
-    force_map_length f ls;
-    bind_dep (map f ls) (fun values ->
-    max values <: cost int (length ls * 7 + 7))
-
-val min : ls:list int{length ls > 0} -> int `cost` (length ls * 7 + 7)
-let min ls = foldT (fun min x -> (if x < min then x else min) |> incRet 3)
-                   (head ls)
-                   ls
-              |> inc 3
-
-val minBy (#a #b:Type):
-    (a -> int)
-    -> ls: list a { length ls > 0 }
-    -> int `cost` (length ls * 9 + 9)
-let minBy #_ #_ f ls =
-    force_map_length f ls;
-    bind_dep (map f ls) (fun values ->
-    min values <: cost int (length ls * 7 + 7))
+let rec max ls =
+    match ls with
+    | hd :: [] -> hd |> incRet 14
+    | hd :: tl ->
+        let! r = max tl in
+            (if hd > r then hd else r)
+            |> incRet 7
 
 val nth(#a:Type): ls:list a -> n:nat{n < length ls} -> a `cost` (2 * n + 2)
 let rec nth #_ (hd::tl) n =
@@ -303,23 +293,3 @@ let rec tryNth #_ ls n =
     if n < length ls
     then nth ls n >>= OT.some |> inc 5
     else OT.incNone (2 * n + 7)
-
-val filter(#a:Type):
-    (a -> bool)
-    -> ls: list a
-    -> list a `cost` (4 * length ls + 4)
-let filter #_ f = fold (fun r x -> if f x then x :: r else r) []
-
-val sumNat: ls:list nat -> nat `cost` (length ls * 4 + 4)
-let sumNat =
-    let (+) (x : nat) (y : nat) : nat = x + y
-    in fold (+) 0
-
-val sumByNat (#a:Type):
-    (a -> n:nat)
-    -> ls: list a
-    -> nat `cost` (length ls * 6 + 6)
-let sumByNat #_ f ls =
-    force_map_length f ls;
-    map f ls `bind_dep` (fun values ->
-    sumNat values <: cost nat (length ls * 4 + 4))
