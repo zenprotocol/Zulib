@@ -42,7 +42,6 @@ let runFStar args files =
 
   let executable,fstarPath,z3Path =
     if EnvironmentHelper.isLinux then ("mono", "packages/ZFStar/tools/fstar.exe", "packages/zen_z3_linux/output/z3-linux")
-    if EnvironmentHelper.isLinux then ("mono", "packages/ZFStar/tools/fstar.exe", "packages/zen_z3_linux/output/z3-linux")
     elif EnvironmentHelper.isMacOS then ("mono", "packages/ZFStar/tools/fstar.exe", "packages/zen_z3_osx/output/z3-osx")
     else ("packages/ZFStar/tools/fstar.exe","","packages/zen_z3_windows/output/z3.exe")
 
