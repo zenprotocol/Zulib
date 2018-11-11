@@ -112,7 +112,7 @@ let updateString (s:S.t) (sha3:t): Cost.t<t, unit> =
     )
     |> Cost.C
 
-let updateByteArray (bs:U8.t array) (sha3:t): Cost.t<t, unit> =
+let updateByteArray (_: Prims.nat) (bs:U8.t array) (sha3:t): Cost.t<t, unit> =
     lazy (
         let sha3 = clone sha3
         sha3.BlockUpdate(bs, 0, Array.length bs)
