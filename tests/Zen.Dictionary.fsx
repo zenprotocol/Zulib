@@ -7,7 +7,7 @@ open FsCheck
 
 module C = Zen.Cost.Realized
 module P = Prims
-module S = FStar.String
+module S = Zen.String
 module ZD = Zen.Dictionary
 
 type FSDict<'A> =

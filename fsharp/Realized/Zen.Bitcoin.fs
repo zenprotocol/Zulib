@@ -22,15 +22,15 @@ let private getTarget (header:bitcoinHeader) : target = header.[72..75]
 let nbits (header:bitcoinHeader) : Cost.t<target,unit> =
     Cost.C <| lazy (getTarget header)
 
-let parseHeader (b16:byte array) : Cost.t<FStar.Pervasives.Native.option<bitcoinHeader>, unit> =
+let parseHeader (b16:byte array) : Cost.t<Zen.Pervasives.Native.option<bitcoinHeader>, unit> =
     lazy(
         if Array.length b16 <> 160 then
-            FStar.Pervasives.Native.None
+            Zen.Pervasives.Native.None
         else
             let b16 = System.Text.Encoding.ASCII.GetString b16
             match Base16.decode b16 with
-            | None -> FStar.Pervasives.Native.None
-            | Some h -> FStar.Pervasives.Native.Some h
+            | None -> Zen.Pervasives.Native.None
+            | Some h -> Zen.Pervasives.Native.Some h
     ) |> Cost.C
 
 let computeHeaderHash (header:bitcoinHeader) : Cost.t<hash,unit> =

@@ -1,12 +1,12 @@
 module Zen.Wallet
-open FStar.Pervasives
-open FStar.Pervasives.Native
+open Zen.Pervasives
+open Zen.Pervasives.Native
 open Zen.Types.Extracted
 open Zen.Types.Realized
 open FSharp.Core.Operators.Checked
 
 module Cost = Zen.Cost.Realized
-module U64 = FStar.UInt64
+module U64 = Zen.UInt64
 
 type t = Zen.Types.Realized.wallet
 

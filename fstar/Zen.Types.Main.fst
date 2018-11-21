@@ -5,7 +5,7 @@ open Zen.Types.Realized
 open Zen.Cost
 open Zen.Types.Data
 
-module U32 = FStar.UInt32
+module U32 = Zen.UInt32
 
 
 val maxCost: nat

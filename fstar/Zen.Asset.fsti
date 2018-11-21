@@ -1,7 +1,7 @@
 module Zen.Asset
 
-module S = FStar.String
-module U32 = FStar.UInt32
+module S = Zen.String
+module U32 = Zen.UInt32
 
 open Zen.Cost
 open Zen.Types
