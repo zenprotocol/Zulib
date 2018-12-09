@@ -15,7 +15,14 @@ let private filler len =
     32 - len
     |> Array.zeroCreate
 
-let encodedBytesLength = 2 * ContractId.bytesLength
+[<Literal>]
+let NoSubIdentifierBytesLength = ContractId.BytesLength
+[<Literal>]
+let SubIdentifierBytesLength = 68 // NoSubIdentifierBytesLength + 32
+[<Literal>]
+let NoSubIdentifierEncodedBytesLength = 72 // 2 * NoSubIdentifierBytesLength
+[<Literal>]
+let SubIdentifierEncodedBytesLength = 136 // 2 * SubIdentifierBytesLength
 
 let private getBytes value = BitConverter.GetBytes (value:uint32)
 
@@ -32,26 +39,23 @@ let zenAsset : asset = 0ul, zeroHash, zeroHash
 let private decodeB16Bytes: Prims.string -> option< array<byte> > =
     System.Text.Encoding.ASCII.GetString >> Base16.decode
 
-let parse (value : Prims.string) : Cost.t<asset Native.option, unit> =
+let parse (value : Prims.string) : Cost.t<Native.option<asset>, unit> =
     lazy (
-        if value = [| 0uy; 0uy |] then
-            Native.Some (0u, zeroHash, zeroHash)
+        if value = "00"B then Native.Some zenAsset else
+        let l = Array.length value
+        if not (l = SubIdentifierEncodedBytesLength || l = NoSubIdentifierEncodedBytesLength)
+        then Native.None
         else
-          let contractId = ContractId.parse value.[0..encodedBytesLength-1] |> Cost.__force
-          match contractId with
-          | Native.Some (ver, cHash) ->
-              let subType =
-                  if Array.length value = encodedBytesLength
-                  then Some zeroHash
-                  else decodeB16Bytes value.[encodedBytesLength..]
-
-              match subType with
-              | Some subType ->
-                  Native.Some (ver, cHash, subType)
-              | None ->
-                  Native.None
-          | Native.None ->
-              Native.None
+            let contractID = ContractId.parse value.[0..ContractId.EncodedBytesLength-1]
+                             |> Cost.__force
+            let subID = if l = NoSubIdentifierEncodedBytesLength
+                        then Some zeroHash
+                        else decodeB16Bytes value.[ContractId.EncodedBytesLength..]
+            match contractID, subID with
+            | Native.Some (ver, cHash), Some subID ->
+                Native.Some (ver, cHash, subID)
+            | _ ->
+                Native.None
     )
     |> Cost.C
 

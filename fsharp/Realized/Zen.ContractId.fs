@@ -6,7 +6,10 @@ open System
 module Seq = FSharpx.Collections.Seq
 module Cost = Zen.Cost.Realized
 
-let bytesLength = 4 + 32
+[<Literal>]
+let BytesLength = 36 // 4 + 32
+[<Literal>]
+let EncodedBytesLength = 72 // 2 * BytesLength
 
 let private charToByte: Zen.Char.t -> byte = function
     | c when 'A'B <= c && c <= 'F'B -> c - 'A'B + 0x0Auy
@@ -30,7 +33,7 @@ let private parseInt: array<byte> -> uint32 =
 
 let parse (value : Prims.string) : Cost.t<contractId Zen.Pervasives.Native.option, unit> =
     lazy (
-        if value.Length <> bytesLength * 2 then None else
+        if value.Length <> EncodedBytesLength then None else
         if not (Array.forall isHexChar value) then None else
         value |> Array.map charToByte
               |> Array.chunkBySize 2
