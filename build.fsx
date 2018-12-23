@@ -115,6 +115,7 @@ Target "Extract" (fun _ ->
        "--extract_module";"Zen.Cost.Extracted";
        "--codegen-lib";"Zen.Cost";
        "--extract_module";"Zen.List";
+       "--extract_module";"Zen.ListBounded";
        "--codegen-lib";"Zen.Array";
        "--extract_module";"Zen.Types.Extracted";
        "--extract_module";"Zen.Types.Data";
