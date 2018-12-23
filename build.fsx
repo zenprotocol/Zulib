@@ -115,6 +115,7 @@ Target "Extract" (fun _ ->
        "--extract_module";"Zen.Cost.Extracted";
        "--codegen-lib";"Zen.Cost";
        "--extract_module";"Zen.List";
+       "--extract_module";"Zen.ListBounded";
        "--codegen-lib";"Zen.Array";
        "--extract_module";"Zen.Types.Extracted";
        "--extract_module";"Zen.Types.Data";
@@ -155,6 +156,7 @@ Target "Build" (fun _ ->
       "fsharp/Extracted/Zen.OptionT.fs";
       "fsharp/Extracted/Zen.ResultT.fs";
       "fsharp/Extracted/Zen.List.fs";
+      "fsharp/Extracted/Zen.ListBounded.fs";
       "fsharp/Realized/Zen.Array.Base.fs";
       "fsharp/Realized/Zen.String.fs";
       "fsharp/Realized/Zen.Dictionary.fs";

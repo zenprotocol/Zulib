@@ -1,4 +1,4 @@
-module Zen.List.Bounded
+module Zen.ListBounded
 
 open Zen.Base
 open Zen.Cost
