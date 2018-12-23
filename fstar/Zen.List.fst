@@ -27,9 +27,6 @@ let cons #_ hd tl = hd::tl
 val (::) (#a:Type): a -> list a -> list a
 let (::) #_ = cons
 
-(* val isNull (#a:Type): list a -> bool
-let isNull #_ = Nil? *)
-
 val append(#a:Type):
     l1:list a
     -> list a
@@ -326,55 +323,3 @@ let sumByNat #_ f ls =
     force_map_length f ls;
     map f ls `bind_dep` (fun values ->
     sumNat values <: cost nat (length ls * 4 + 4))
-
-val foldrT_dep_cf (a s:Type) (c:a -> nat):
-    ls:list a -> GTot nat
-let foldrT_dep_cf a s c ls = force (
-    let! r = sumByNat c ls
-    in ret <| r + length ls * 4 + 4
-    )
-
-val foldrT_dep(#a #s:Type)(#c:a -> nat):
-    (x:a -> r:s -> s `cost` c x)
-    -> b:s
-    -> ls:list a
-    -> Tot (s `cost` foldrT_dep_cf a s c ls)
-           (decreases (length ls))
-let rec foldrT_dep #a #s #c f r = function
-    | [] -> ret r |> inc (foldrT_dep_cf a s c [])
-    | hd::tl ->
-        let! r = f hd r in
-        foldrT_dep f r tl |> inc 4
-
-(* val concat (#a:Type):
-    ls: list (list a)
-    (* -> list a `cost` (length ls * ((2 * (force (max (force (map length ls)))) + 2) + 4) + 4) *)
-    -> list a `cost` (length ls * (n + 4) + 4)
-(* let concat #a ls = foldT (++) [] ls *)
-let rec concat #_ ls = match ls with
-    | []       -> ret []
-    | (hd::tl) ->
-        let! tl' = concat tl
-        in ret (hd ++ tl') *)
-
-(* val zip(#a #b:Type):
-    ls1 : list a
-    -> ls2 : list b
-    -> list (a ** b) `cost` (P.min (length ls1) (length ls2) * 20 + 20)
-let rec zip #a #_ ls1 ls2 = (match (ls1, ls2) with
-    | ([], _) -> ret []
-    | (_, []) -> ret []
-    | ((x::xs), (y::ys)) ->
-        let (xs: list a) = xs in
-        let! r = zip xs ys
-        in ret ((x,y) :: r))
-        |> inc 20 *)
-
-(* unfold val (++) (#a:Type): l1:list a -> list a -> list a `cost` (2 * length l1 + 2)
-
-val foldT(#a #s:Type)(#n:nat):
-    (s -> a -> s `cost` n)
-    -> s
-    -> ls:list a
-    -> Tot (s `cost` (length ls * (n + 4) + 4))
-           (decreases (length ls)) *)
