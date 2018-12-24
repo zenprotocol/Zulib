@@ -12,7 +12,7 @@ type int64 = System.Int64
 type t = int64
 
 let v: int64 -> int_t = Checked.int64
-let uint_to_t: int_t -> int64 = Checked.int64
+let int_to_t: int_t -> int64 = Checked.int64
 
 let add (a:int64) (b:int64) : int64 = a + b
 let add_mod a b = add a b
@@ -61,7 +61,22 @@ let op_Greater_Equals_Hat = gte
 let op_Less_Hat = lt
 let op_Less_Equals_Hat = lte
 
-let of_string s = int s
-let to_string s = s.ToString()
+// Converts a string to a byte array`
+let private fsharpStringConvert (s: Core.string): Core.byte Core.array =
+    s.ToCharArray() |> Collections.Array.map Checked.byte
+
+// Converts a byte array to a string
+let private fstarStringConvert: Core.byte Core.array -> Core.string =
+    Collections.Array.map Checked.char >> System.String
+
+let show (x : int64) : Prims.string = fsharpStringConvert (x.ToString())
+
+let showPad (x : int64) : Prims.string =
+    if x < 0L
+        then fsharpStringConvert (x.ToString("D19"))
+        else fsharpStringConvert (x.ToString("D20"))
+
+let read (s : Prims.string) : int64 = Checked.int64 (fstarStringConvert s)
+
 //let to_string_hex s = Printf.sprintf "%02x" s
 //let to_int s = s

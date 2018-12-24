@@ -171,7 +171,7 @@ let op_disEquality: 'A  -> 'A -> bool = (<>)
 type exn = Core.exn
 type 'a array' = 'a Core.array
 type 'a array = 'a array'
-let strcat (x: string) (y: string): string = Collections.Array.append x y
+//let strcat (x: string) (y: string): string = Collections.Array.append x y
 
 type 'a list' = | Nil' | Cons' of int * 'a * 'a list'
 type 'a list = 'a list'
@@ -252,3 +252,5 @@ let (|Cons|Nil|) = function
 let length: 'a list -> int = function
     | Nil' -> 0L
     | Cons' (i, _, _) -> i
+
+let strlen (s:string) : nat = int64 (s.Length)
