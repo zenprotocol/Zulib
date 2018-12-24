@@ -131,6 +131,39 @@ val map(#a #b:Type):
     -> list b `cost` (length ls * 2 + 2)
 let map #_ #_ f = mapT (f >> ret)
 
+val zipWith(#a #b #c:Type):
+       (a -> b -> c)
+    -> ls1:list a
+    -> ls2:list b
+    -> list c `cost` (length ls1 * 2 + 2)
+let rec zipWith #_ #_ #_ f ls1 ls2 =
+    match ls1 with
+    | [] -> [] |> incRet 2
+    | x::xs -> match ls2 with
+               | [] -> [] |> incRet (length ls1 * 2 + 2)
+               | y::ys -> let! tl = zipWith f xs ys in f x y :: tl |> incRet 2
+
+val zip(#a #b:Type):
+       ls1:list a
+    -> ls2:list b
+    -> list (a ** b) `cost` (length ls1 * 2 + 2)
+let zip #a #b = zipWith #a #b (fun x y -> (x,y))
+
+val zipWithT(#a #b #c:Type)(#n:nat):
+       (a -> b -> c `cost` n)
+    -> ls1:list a
+    -> ls2:list b
+    -> list c `cost` (length ls1 * (2 + n) + 2)
+let rec zipWithT #_ #_ #_ #n f ls1 ls2 =
+    match ls1 with
+    | [] -> [] |> incRet 2
+    | x::xs -> match ls2 with
+               | [] -> [] |> incRet (length ls1 * (2 + n) + 2)
+               | y::ys ->
+                    let! tl = zipWithT f xs ys in
+                    let! r = f x y in
+                    r :: tl |> incRet 2
+
 val force_map_length(#a #b:Type):
   f: (a -> b)
   -> ls: list a
@@ -255,7 +288,6 @@ let rec and_ ls =
     | [] -> true |> incRet 4
     | hd :: tl -> let! r = and_ tl in (hd && r) |> incRet 4
 
-
 val all(#a:Type):
     (a -> bool)
     -> ls: list a
@@ -283,6 +315,34 @@ let rec max ls =
             (if hd > r then hd else r)
             |> incRet 7
 
+val maxBy (#a #b:Type):
+    (a -> int)
+    -> ls: list a { length ls > 0 }
+    -> int `cost` (length ls * 9 + 9)
+let maxBy #_ #_ f ls =
+    force_map_length f ls;
+    bind_dep (map f ls) (fun values ->
+    max values <: cost int (length ls * 7 + 7))
+
+val min : ls:list int{length ls > 0} -> int `cost` (length ls * 7 + 7)
+let rec min ls =
+    match ls with
+    | hd :: [] -> hd |> incRet 14
+    | hd :: tl ->
+        let! r = min tl in
+            (if hd < r then hd else r)
+            |> incRet 7
+
+val minBy (#a #b:Type):
+    (a -> int)
+    -> ls: list a { length ls > 0 }
+    -> int `cost` (length ls * 9 + 9)
+let minBy #_ #_ f ls =
+    force_map_length f ls;
+    bind_dep (map f ls) (fun values ->
+    min values <: cost int (length ls * 7 + 7))
+
+
 val nth(#a:Type): ls:list a -> n:nat{n < length ls} -> a `cost` (2 * n + 2)
 let rec nth #_ (hd::tl) n =
     if n = 0 then hd |> incRet 2
@@ -293,3 +353,29 @@ let rec tryNth #_ ls n =
     if n < length ls
     then nth ls n >>= OT.some |> inc 5
     else OT.incNone (2 * n + 7)
+
+val filter(#a:Type):
+    (a -> bool)
+    -> ls: list a
+    -> list a `cost` (4 * length ls + 4)
+let rec filter #_ f ls =
+    match ls with
+    | [] -> [] |> incRet 4
+    | hd :: tl ->
+        let! r = filter f tl in
+        (if f hd then hd :: r else r) |> incRet 4
+
+val sumNat: ls:list nat -> nat `cost` (length ls * 4 + 4)
+let rec sumNat ls =
+    match ls with
+    | [] -> 0 |> incRet 4
+    | hd :: tl -> let! r = sumNat tl in ((hd + r) <: nat) |> incRet 4
+
+val sumByNat (#a:Type):
+    (a -> n:nat)
+    -> ls: list a
+    -> nat `cost` (length ls * 6 + 6)
+let sumByNat #_ f ls =
+    force_map_length f ls;
+    map f ls `bind_dep` (fun values ->
+sumNat values <: cost nat (length ls * 4 + 4))
