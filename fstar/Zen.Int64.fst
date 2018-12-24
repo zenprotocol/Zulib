@@ -151,6 +151,9 @@ unfold let op_Less_Hat = lt
 unfold let op_Less_Equals_Hat = lte
 
 (* To input / output constants *)
+assume val show: t -> s:string { 1 <= strlen s /\ strlen s <= 20 }
+assume val showPad: t -> s:string { strlen s = 20 }
+assume val read: string -> t
 #set-options "--lax"
 //This private primitive is used internally by the
 //compiler to translate bounded integer constants
@@ -164,7 +167,3 @@ unfold
 let __int_to_t (x:int) : Tot t
     = int_to_t x
 #reset-options
-
-assume val show: t -> s:string { 1 <= strlen s /\ strlen s <= 20 }
-assume val showPad: t -> s:string { strlen s = 20 }
-assume val read: string -> t

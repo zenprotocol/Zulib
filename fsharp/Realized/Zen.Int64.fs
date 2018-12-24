@@ -12,7 +12,7 @@ type int64 = System.Int64
 type t = int64
 
 let v: int64 -> int_t = Checked.int64
-let uint_to_t: int_t -> int64 = Checked.int64
+let int_to_t: int_t -> int64 = Checked.int64
 
 let add (a:int64) (b:int64) : int64 = a + b
 let add_mod a b = add a b
