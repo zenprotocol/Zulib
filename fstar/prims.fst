@@ -24,12 +24,11 @@ assume val cps : attribute
    The type-checker emits axioms for hasEq for each inductive type *)
 assume type hasEq: Type -> GTot Type0
 
-type eqtype = a:Type{hasEq a}
+type eqtype = a:Type0{hasEq a}
 
 (* bool is a two element type with elements {'true', 'false'}
     we assume it is primitive, for convenient interop with other languages *)
-assume new type bool : Type0
-assume HasEq_bool: hasEq bool
+assume new type bool : eqtype
 
 (* False is the empty inductive type *)
 type c_False =
@@ -40,17 +39,30 @@ type c_True =
 
 (* another singleton type, with its only inhabitant written '()'
    we assume it is primitive, for convenient interop with other languages *)
-assume new type unit : Type0
-assume HasEq_unit: hasEq unit
+assume new type unit : eqtype
 
 (* A coercion down to universe 0 *)
 type squash (p:Type) : Type0 = x:unit{p}
 
+(* F* will automatically insert `auto_squash` when simplifying terms,
+   converting terms of the form `p /\ True` to `auto_squash p`.
+   We distinguish these automatically inserted squashes from explicit,
+   user-written squashes.
+   It's marked `private` so that users cannot write it themselves.
+*)
+private
+let auto_squash (p:Type) = squash p
+
+(*
+ * transition to prop and its enforcement
+ *)
+private type logical = Type0
+
 (*
  * Squashed versions of truth and falsehood
  *)
-type l_True = squash c_True
-type l_False = squash c_False
+type l_True: logical = squash c_True
+type l_False: logical = squash c_False
 
 (* The usual equality defined as an inductive type *)
 type equals (#a:Type) (x:a) : a -> Type =
@@ -61,26 +73,26 @@ type equals (#a:Type) (x:a) : a -> Type =
 *)
 //TODO: instead of hard-wiring the == syntax,
 //       we should just rename eq2 to op_Equals_Equals
-type eq2 (#a:Type) (x:a) (y:a) = squash (equals x y)
+type eq2 (#a:Type) (x:a) (y:a): logical = squash (equals x y)
 
 (* Heterogeneous equality *)
 type h_equals (#a:Type) (x:a) : #b:Type -> b -> Type =
   | HRefl : h_equals x x
 
 (* A proof-irrelevant version of h_equals *)
-type eq3 (#a:Type) (#b:Type) (x:a) (y:b) = squash (h_equals x y)
+type eq3 (#a:Type) (#b:Type) (x:a) (y:b): logical = squash (h_equals x y)
 
 unfold let op_Equals_Equals_Equals (#a:Type) (#b:Type) (x:a) (y:b) = eq3 x y
 
 (* bool-to-type coercion *)
-type b2t (b:bool) = (b == true)
+type b2t (b:bool): logical = (b == true)
 
 (* constructive conjunction *)
 type c_and  (p:Type) (q:Type) =
   | And   : p -> q -> c_and p q
 
 (* '/\'  : specialized to Type#0 *)
-type l_and (p:Type0) (q:Type0) = squash (c_and p q)
+type l_and (p q:logical): logical = squash (c_and p q)
 
 (* constructive disjunction *)
 type c_or   (p:Type) (q:Type) =
@@ -88,19 +100,19 @@ type c_or   (p:Type) (q:Type) =
   | Right : q -> c_or p q
 
 (* '\/'  : specialized to Type#0 *)
-type l_or (p:Type0) (q:Type0) = squash (c_or p q)
+type l_or (p q:logical) :logical = squash (c_or p q)
 
 (* '==>' : specialized to Type#0 *)
-type l_imp (p:Type0) (q:Type0) = squash (p -> GTot q)
+type l_imp (p q:logical) :logical = squash (p -> GTot q)
                                          (* ^^^ NB: The GTot effect is primitive;            *)
-				         (*         elaborated using GHOST a few lines below *)
+                                         (*         elaborated using GHOST a few lines below *)
 (* infix binary '<==>' *)
-type l_iff (p:Type) (q:Type) = (p ==> q) /\ (q ==> p)
+type l_iff (p q:logical) :logical = (p ==> q) /\ (q ==> p)
 
 (* prefix unary '~' *)
-type l_not (p:Type) = l_imp p False
+type l_not (p:logical) :logical = l_imp p False
 
-unfold type l_ITE (p:Type) (q:Type) (r:Type) = (p ==> q) /\ (~p ==> r)
+unfold type l_ITE (p q r:logical) :logical = (p ==> q) /\ (~p ==> r)
 
 (* infix binary '<<'; a built-in well-founded partial order over all terms *)
 assume type precedes : #a:Type -> #b:Type -> a -> b -> Type0
@@ -109,20 +121,12 @@ assume type precedes : #a:Type -> #b:Type -> a -> b -> Type0
 assume type has_type : #a:Type -> a -> Type -> Type0
 
 (* forall (x:a). p x : specialized to Type#0 *)
-type l_Forall (#a:Type) (p:a -> GTot Type0) = squash (x:a -> GTot (p x))
+type l_Forall (#a:Type) (p:a -> GTot Type0) :logical = squash (x:a -> GTot (p x))
+
+let subtype_of (p1:Type) (p2:Type) = forall (x:p1). has_type x p2
 
 (* The type of squashed types *)
-type prop = a:Type0{ forall (x:a). x === () }
-
-(* dependent pairs DTuple2 in concrete syntax is '(x:a & b x)' *)
-unopteq type dtuple2 (a:Type)
-             (b:(a -> GTot Type)) =
-  | Mkdtuple2: _1:a
-            -> _2:b _1
-            -> dtuple2 a b
-
-(* exists (x:a). p x : specialized to Type#0 *)
-type l_Exists (#a:Type) (p:a -> GTot Type0) = squash (x:a & p x)
+type prop = a:Type0{ a `subtype_of` unit }
 
 (* range is a type for the internal representations of source ranges
          The functions that follow below allow manipulating ranges
@@ -132,11 +136,7 @@ type l_Exists (#a:Type) (p:a -> GTot Type0) = squash (x:a & p x)
 *)
 assume new type range : Type0
 
-assume new type string : Type0
-assume HasEq_string: hasEq string
-
-irreducible let labeled (r:range) (msg:string) (b:Type) = b
-
+assume new type string : eqtype
 
 (* PURE effect *)
 let pure_pre = Type0
@@ -187,7 +187,7 @@ total new_effect { (* The definition of the PURE effect is fixed; no user should
 // Note the type of post, which allows to assume the precondition
 // for the well-formedness of the postcondition. c.f. #57
 effect Pure (a:Type) (pre:pure_pre) (post:pure_post' a pre) =
-        PURE a (fun (p:pure_post a) -> pre /\ (forall (x:a). post x ==> p x))
+        PURE a (fun (p:pure_post a) -> pre /\ (forall (pure_result:a). post pure_result ==> p pure_result))
 
 effect Admit (a:Type) = PURE a (fun (p:pure_post a) -> True)
 
@@ -203,13 +203,20 @@ sub_effect
 
 (* The primitive effect GTot is definitionally equal to an instance of GHOST *)
 effect GTot (a:Type) = GHOST a (pure_null_wp a)
-(* #set-options "--print_universes --print_implicits --print_bound_var_types --debug Prims --debug_level Extreme" *)
 effect Ghost (a:Type) (pre:Type) (post:pure_post' a pre) =
-       GHOST a (fun (p:pure_post a) -> pre /\ (forall (x:a). post x ==> p x))
+       GHOST a (fun (p:pure_post a) -> pre /\ (forall (ghost_result:a). post ghost_result ==> p ghost_result))
 
-assume new type int : Type0
+(* dependent pairs DTuple2 in concrete syntax is '(x:a & b x)' *)
+unopteq type dtuple2 (a:Type)
+             (b:(a -> GTot Type)) =
+  | Mkdtuple2: _1:a
+            -> _2:b _1
+            -> dtuple2 a b
 
-assume HasEq_int: hasEq int
+(* exists (x:a). p x : specialized to Type#0 *)
+type l_Exists (#a:Type) (p:a -> GTot Type0) = squash (x:a & p x)
+
+assume new type int : eqtype
 
 assume val range_0 : range
 (* A total function to obtain the range of a term x *)
@@ -231,8 +238,8 @@ assume val op_LessThanOrEqual    : int -> int -> Tot bool
 assume val op_GreaterThan        : int -> int -> Tot bool
 assume val op_GreaterThanOrEqual : int -> int -> Tot bool
 assume val op_LessThan           : int -> int -> Tot bool
-assume val op_Equality :    #a:Type{hasEq a} -> a -> a -> Tot bool
-assume val op_disEquality : #a:Type{hasEq a} -> a -> a -> Tot bool
+assume val op_Equality :    #a:eqtype -> a -> a -> Tot bool
+assume val op_disEquality : #a:eqtype -> a -> a -> Tot bool
 assume new type exn : Type0
 assume new type array : Type -> Type0
 assume Array_hasEq: forall (a:Type). {:pattern (hasEq (array a))}
@@ -335,3 +342,9 @@ let rec length #_ = function
 (* Putting strlen in Zen.String causes circular dependency:
     Zen.UInt8 => Zen.String => Zen.Char => Zen.UInt8 *)
 assume val strlen: string -> nat
+
+irreducible let labeled (r:range) (msg:string) (b:Type) = b
+
+(* THIS IS MEANT TO BE KEPT IN SYNC WITH FStar.Universal.fs
+   Incrementing this forces all .checked files to be invalidated *)
+private abstract let __cache_version_number__ = 7
