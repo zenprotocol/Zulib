@@ -1,12 +1,12 @@
 module Zen.Asset
 
-open Zen.Pervasives
+open FStar.Pervasives
 open Zen.Types.Extracted
 open System
 open System.Text
-open Zen.UInt32
+open FStar.UInt32
 open FsBech32
-open Zen.Pervasives
+open FStar.Pervasives
 
 module Cost = Zen.Cost.Realized
 module ContractId = Zen.ContractId

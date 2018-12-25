@@ -140,25 +140,25 @@ Target "Build" (fun _ ->
 
   let files =
     [| "fsharp/Realized/prims.fs";
-      "fsharp/Realized/Zen.Pervasives.fs";
+      "fsharp/Realized/FStar.Pervasives.fs";
       "fsharp/Extracted/Zen.Base.fs";
       "fsharp/Extracted/Zen.Option.fs";
       "fsharp/Extracted/Zen.Result.fs";
       "fsharp/Realized/Zen.Cost.Realized.fs";
       "fsharp/Extracted/Zen.Cost.Extracted.fs";
       "fsharp/Extracted/Zen.Integers.fs";
-      "fsharp/Realized/Zen.UInt8.fs";
-      "fsharp/Realized/Zen.UInt32.fs";
-      "fsharp/Realized/Zen.UInt64.fs";
-      "fsharp/Realized/Zen.Int64.fs";
-      "fsharp/Realized/Zen.Char.fs";
+      "fsharp/Realized/FStar.UInt8.fs";
+      "fsharp/Realized/FStar.UInt32.fs";
+      "fsharp/Realized/FStar.UInt64.fs";
+      "fsharp/Realized/FStar.Int64.fs";
+      "fsharp/Realized/FStar.Char.fs";
       "fsharp/Realized/Zen.Set.fs";
       "fsharp/Extracted/Zen.OptionT.fs";
       "fsharp/Extracted/Zen.ResultT.fs";
       "fsharp/Extracted/Zen.List.fs";
       "fsharp/Extracted/Zen.ListBounded.fs";
       "fsharp/Realized/Zen.Array.Base.fs";
-      "fsharp/Realized/Zen.String.fs";
+      "fsharp/Realized/FStar.String.fs";
       "fsharp/Realized/Zen.Dictionary.fs";
       "fsharp/Extracted/Zen.Array.Indexed.fs";
       "fsharp/Extracted/Zen.Types.Extracted.fs";

@@ -1,11 +1,9 @@
-module Zen.UInt64
+module FStar.UInt32
 
 open Zen.Integers
 open Zen.Option
 
-module S = Zen.String
-
-let fits (x:int): bool = 0 <= x && x <= 18446744073709551615
+let fits (x:int): bool = 0 <= x && x <= 4294967295
 let size (x:int): Type0 = b2t(fits x)
 type uint_t = x:int{size x}
 
@@ -38,8 +36,8 @@ abstract let add a b = Mk (v a + v b)
 
 abstract val add_mod: a:t -> b:t -> Pure t
   (requires True)
-  (ensures (fun c -> (v a + v b) % 18446744073709551616 = v c))
-abstract let add_mod a b = Mk ((v a + v b) % 18446744073709551616)
+  (ensures (fun c -> (v a + v b) % 4294967296 = v c))
+abstract let add_mod a b = Mk ((v a + v b) % 4294967296)
 
 abstract val checked_add: a:t -> b:t -> option t
 abstract let checked_add a b = if fits (v a + v b) then Some (Mk (v a + v b)) else None
@@ -52,8 +50,8 @@ abstract let sub a b = Mk (v a - v b)
 
 abstract val sub_mod: a:t -> b:t -> Pure t
   (requires True)
-  (ensures (fun c -> (v a - v b) % 18446744073709551616 = v c))
-abstract let sub_mod a b = Mk ((v a - v b) % 18446744073709551616)
+  (ensures (fun c -> (v a - v b) % 4294967296 = v c))
+abstract let sub_mod a b = Mk ((v a - v b) % 4294967296)
 
 abstract val checked_sub: a:t -> b:t -> option t
 abstract let checked_sub a b = if fits (v a - v b) then Some (Mk (v a - v b)) else None
@@ -66,8 +64,8 @@ abstract let mul a b = Mk (v a * v b)
 
 abstract val mul_mod: a:t -> b:t -> Pure t
   (requires True)
-  (ensures (fun c -> (v a * v b) % 18446744073709551616 = v c))
-abstract let mul_mod a b = Mk ((v a * v b) % 18446744073709551616)
+  (ensures (fun c -> (v a * v b) % 4294967296 = v c))
+abstract let mul_mod a b = Mk ((v a * v b) % 4294967296)
 
 abstract val checked_mul: a:t -> b:t -> option t
 abstract let checked_mul a b = if fits (v a * v b) then Some (Mk (v a * v b)) else None
@@ -158,8 +156,8 @@ unfold let op_Less_Hat = lt
 unfold let op_Less_Equals_Hat = lte
 
 (* To input / output constants *)
-assume val show: t -> s:string { 1 <= strlen s /\ strlen s <= 20 }
-assume val showPad: t -> s:string { strlen s = 20 }
+assume val show: t -> s:string { 1 <= strlen s /\ strlen s <= 10 }
+assume val showPad: t -> s:string { strlen s = 10 }
 assume val read: string -> t
 #set-options "--lax"
 //This private primitive is used internally by the

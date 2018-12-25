@@ -26,7 +26,7 @@ NUGET
     zen_z3_linux (4.5.1.8-v1f29cebd4df)
     zen_z3_osx (4.5.1.8-v1f29cebd4df6)
     zen_z3_windows (4.5.1.7-v1f29cebd4df)
-    ZFStar (0.0.27-alpha002)
+    ZFStar (0.0.27-alpha003)
 
 GROUP MetadataFix
 GENERATE-LOAD-SCRIPTS: ON

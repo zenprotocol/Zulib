@@ -1,7 +1,7 @@
-module Zen.Char
+module FStar.Char
 
 module Cost = Zen.Cost.Realized
-module U8 = Zen.UInt8
+module U8 = FStar.UInt8
 
 type char = U8.t
 type t = char

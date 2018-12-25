@@ -5,10 +5,10 @@ open Zen.Cost
 open Zen.Types
 
 module A = Zen.Array
-module I64 = Zen.Int64
-module U8  = Zen.UInt8
-module U32 = Zen.UInt32
-module U64 = Zen.UInt64
+module I64 = FStar.Int64
+module U8  = FStar.UInt8
+module U32 = FStar.UInt32
+module U64 = FStar.UInt64
 
 assume type t
 
@@ -52,7 +52,7 @@ val updateI64:
 val updateString:
   s:string ->
   t ->
-  t `cost` (6 * Zen.String.length s)
+  t `cost` (6 * FStar.String.length s)
 
 val updateByteArray(#n:nat):
   U8.t `A.indexed` n ->
@@ -93,7 +93,7 @@ val ofI64:
 
 val ofString:
   s:string ->
-  hash `cost` (6 * (Zen.String.length s) + 20)
+  hash `cost` (6 * (FStar.String.length s) + 20)
 
 val ofByteArray(#n:nat):
   U8.t `A.indexed` n ->

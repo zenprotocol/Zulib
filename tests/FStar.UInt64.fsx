@@ -8,7 +8,7 @@ open System
 
 module C = Zen.Cost.Realized
 module P = Prims
-module Z64 = Zen.UInt64
+module Z64 = FStar.UInt64
 module Checked = Operators.Checked
 
 type Generators =
