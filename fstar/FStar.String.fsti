@@ -1,9 +1,9 @@
-module Zen.String
+module FStar.String
 
 open Zen.Base
 open Zen.Cost
 module A = Zen.Array
-module Char = Zen.Char
+module Char = FStar.Char
 
 type t = string
 

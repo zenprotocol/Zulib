@@ -5,12 +5,12 @@ open Zen.Cost
 open Zen.Types
 module OT = Zen.OptionT
 module A = Zen.Array
-//module I8  = Zen.Int8
-//module I32 = Zen.Int32
-module I64 = Zen.Int64
-module U8  = Zen.UInt8
-module U32 = Zen.UInt32
-module U64 = Zen.UInt64
+//module I8  = FStar.Int8
+//module I32 = FStar.Int32
+module I64 = FStar.Int64
+module U8  = FStar.UInt8
+module U32 = FStar.UInt32
+module U64 = FStar.UInt64
 module OT = Zen.OptionT
 module Dict = Zen.Dictionary
 

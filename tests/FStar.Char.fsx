@@ -7,7 +7,7 @@ open FsCheck
 
 module C = Zen.Cost.Realized
 module P = Prims
-module Char = Zen.Char
+module Char = FStar.Char
 
 
 type CharProperties =

@@ -1,44 +1,43 @@
-module Zen.UInt8
+module FStar.UInt32
 //open Prims
 
 module Checked = FSharp.Core.Operators.Checked
-open Zen.Pervasives.Native
+open FStar.Pervasives.Native
 
-let fits (x: Prims.int): bool = 0L <= x && x <= 0xFFL
+let fits (x: Prims.int): bool = 0L <= x && x <= 4294967295L
 let size (x: Prims.int): unit = ()
 type uint_t = Prims.int
 
-type uint8 = System.Byte
-type byte = uint8
-type t = uint8
+type uint32 = System.UInt32
+type t = uint32
 
-let v: uint8 -> uint_t = Checked.int64
-let uint_to_t: uint_t -> uint8 = Checked.byte
+let v: uint32 -> uint_t = Checked.int64
+let uint_to_t: uint_t -> uint32 = Checked.uint32
 
-let add (a:uint8) (b:uint8) : uint8 = a + b
+let add (a:uint32) (b:uint32) : uint32 = a + b
 let add_mod a b = add a b
-let checked_add a b : option<uint8> = try Some (Checked.(+) a b) with | _ -> None
+let checked_add a b : option<uint32> = try Some (Checked.(+) a b) with | _ -> None
 
-let sub (a:uint8) (b:uint8) : uint8 = a - b
+let sub (a:uint32) (b:uint32) : uint32 = a - b
 let sub_mod a b = sub a b
-let checked_sub a b : option<uint8> = try Some (Checked.(-) a b) with | _ -> None
+let checked_sub a b : option<uint32> = try Some (Checked.(-) a b) with | _ -> None
 
-let mul (a:uint8) (b:uint8) : uint8 = a * b
+let mul (a:uint32) (b:uint32) : uint32 = a * b
 let mul_mod a b = mul a b
-let checked_mul a b : option<uint8> = try Some (Checked.(*) a b) with | _ -> None
+let checked_mul a b : option<uint32> = try Some (Checked.(*) a b) with | _ -> None
 
-let div (a:uint8) (b:uint8) : uint8 = a / b
-let checked_div a b : option<uint8> = try Some (a / b) with | _ -> None
+let div (a:uint32) (b:uint32) : uint32 = a / b
+let checked_div a b : option<uint32> = try Some (a / b) with | _ -> None
 
-let rem (a:uint8) (b:uint8) : uint8 = a % b
+let rem (a:uint32) (b:uint32) : uint32 = a % b
 
 (* Comparison operators *)
 
-let eq (a:uint8) (b:uint8) : bool = a = b
-let gt (a:uint8) (b:uint8) : bool =  a > b
-let gte (a:uint8) (b:uint8) : bool = a >= b
-let lt (a:uint8) (b:uint8) : bool = a < b
-let lte (a:uint8) (b:uint8) : bool =  a <= b
+let eq (a:uint32) (b:uint32) : bool = a = b
+let gt (a:uint32) (b:uint32) : bool =  a > b
+let gte (a:uint32) (b:uint32) : bool = a >= b
+let lt (a:uint32) (b:uint32) : bool = a < b
+let lte (a:uint32) (b:uint32) : bool =  a <= b
 
 (* Constant time comparison operators, TODO: check and implement efficiently *)
 
@@ -70,11 +69,11 @@ let private fsharpStringConvert (s: Core.string): Core.byte Core.array =
 let private fstarStringConvert: Core.byte Core.array -> Core.string =
     Collections.Array.map Checked.char >> System.String
 
-let show (x : uint8) : Prims.string = fsharpStringConvert (x.ToString())
+let show (x : uint32) : Prims.string = fsharpStringConvert (x.ToString())
 
-let showPad (x : uint8) : Prims.string = fsharpStringConvert (x.ToString("D3"))
+let showPad (x : uint32) : Prims.string = fsharpStringConvert (x.ToString("D10"))
 
-let read (s : Prims.string) : uint8 = Checked.uint8 (fstarStringConvert s)
+let read (s : Prims.string) : uint32 = Checked.uint32 (fstarStringConvert s)
 
 //let to_string_hex s = Printf.sprintf "%02x" s
 //let to_int s = s

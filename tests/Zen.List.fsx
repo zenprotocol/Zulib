@@ -115,8 +115,8 @@ type ListProperties =
                let fsTryNth = zListToFSList zs
                               |> FSharpx.Collections.Seq.tryNth n
                match (C.__force zTryNth, fsTryNth) with
-               | Zen.Pervasives.Native.Some x, Some y -> x = y
-               | Zen.Pervasives.Native.None, None -> true
+               | FStar.Pervasives.Native.Some x, Some y -> x = y
+               | FStar.Pervasives.Native.None, None -> true
                | _ -> false )
 
 Check.QuickAll<ListProperties>()
