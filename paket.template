@@ -1,6 +1,6 @@
 type file
 id Zulib
-version 0.3.38-alpha001
+version 0.3.38-alpha002
 authors ZenProtocol
 description
 	Zen Protocol ZFStar standard library
@@ -18,7 +18,7 @@ dependencies
 	FSharpx.Collections
 	NUnit
 	Zen.FSharp.Compiler.Service 17.0.2
-	ZFStar 0.0.26
+	ZFStar 0.0.27-alpha004
 
 	zen_z3_linux 4.5.1.8-v1f29cebd4df
 	zen_z3_osx 4.5.1.8-v1f29cebd4df6
