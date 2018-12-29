@@ -131,6 +131,19 @@ val map(#a #b:Type):
     -> list b `cost` (length ls * 2 + 2)
 let map #_ #_ f = mapT (f >> ret)
 
+val tryMapT(#a #b:Type)(#n:nat):
+    (a -> option b `cost` n)
+    -> ls:list a
+    -> option (list b) `cost` (length ls * (n + 2) + 2)
+let rec tryMapT #_ #_ #_ f = let open OT in
+    function
+    | [] -> incSome 2 []
+    | hd::tl ->
+        let hd = f hd in
+        let tl = tryMapT f tl in
+        Cons <$> hd <*> tl
+        |> inc 2
+
 val zipWith(#a #b #c:Type):
        (a -> b -> c)
     -> ls1:list a
