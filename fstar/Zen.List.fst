@@ -131,58 +131,146 @@ val map(#a #b:Type):
     -> list b `cost` (length ls * 2 + 2)
 let map #_ #_ f = mapT (f >> ret)
 
-val tryMapT(#a #b:Type)(#n:nat):
-    (a -> option b `cost` n)
-    -> ls:list a
-    -> option (list b) `cost` (length ls * (n + 2) + 2)
-let rec tryMapT #_ #_ #_ f = let open OT in
-    function
-    | [] -> incSome 2 []
-    | hd::tl ->
-        let hd = f hd in
-        let tl = tryMapT f tl in
-        Cons <$> hd <*> tl
-        |> inc 2
-
-val zipWith(#a #b #c:Type):
-       (a -> b -> c)
-    -> ls1:list a
-    -> ls2:list b
-    -> list c `cost` (length ls1 * 2 + 2)
-let rec zipWith #_ #_ #_ f ls1 ls2 =
-    match ls1 with
-    | [] -> [] |> incRet 2
-    | x::xs -> match ls2 with
-               | [] -> [] |> incRet (length ls1 * 2 + 2)
-               | y::ys -> let! tl = zipWith f xs ys in f x y :: tl |> incRet 2
-
-val zip(#a #b:Type):
-       ls1:list a
-    -> ls2:list b
-    -> list (a ** b) `cost` (length ls1 * 2 + 2)
-let zip #a #b = zipWith #a #b (fun x y -> (x,y))
-
-val zipWithT(#a #b #c:Type)(#n:nat):
-       (a -> b -> c `cost` n)
-    -> ls1:list a
-    -> ls2:list b
-    -> list c `cost` (length ls1 * (2 + n) + 2)
-let rec zipWithT #_ #_ #_ #n f ls1 ls2 =
-    match ls1 with
-    | [] -> [] |> incRet 2
-    | x::xs -> match ls2 with
-               | [] -> [] |> incRet (length ls1 * (2 + n) + 2)
-               | y::ys ->
-                    let! tl = zipWithT f xs ys in
-                    let! r = f x y in
-                    r :: tl |> incRet 2
-
 val force_map_length(#a #b:Type):
   f: (a -> b)
   -> ls: list a
   -> Lemma ( let result = f `map` ls in
              length (force result) == length ls )
 let force_map_length #_ #_ f = force_mapT_length (f>>ret)
+
+val tryMapT(#a #b:Type)(#n:nat):
+    (a -> option b `cost` n)
+    -> ls:list a
+    -> option (list b) `cost` (length ls * (n + 2) + 2)
+let rec tryMapT #_ #_ #_ f = function
+    | [] -> Some [] |> incRet 2
+    | hd::tl ->
+        let! hd = f hd in
+        let! tl = tryMapT f tl in
+        begin match hd, tl with
+        | Some hd, Some tl -> Some (hd::tl)
+        | _ -> None
+        end |> incRet 2
+
+val force_tryMapT_cons(#a #b:Type)(#n:nat):
+  f: (a -> option b `cost` n)
+  -> ls: list a
+  -> Lemma begin match ls with
+                 | [] -> True
+                 | hd::tl ->
+                    force (f `tryMapT` ls) ==
+                    begin match force (f hd), force (f `tryMapT` tl) with
+                    | Some hd, Some tl -> Some (hd::tl)
+                    | _ -> None
+                    end
+           end
+let force_tryMapT_cons #_ #_ #_ _ _ = ()
+
+val force_tryMapT_length(#a #b:Type)(#n:nat):
+  f: (a -> option b `cost` n)
+  -> ls: list a
+  -> Lemma (match force (f `tryMapT` ls) with
+                 | None -> True
+                 | Some r -> length r == length ls)
+let rec force_tryMapT_length #_ #_ #_ f = function
+    | [] -> ()
+    | hd::tl -> force_tryMapT_cons f tl; force_tryMapT_length f tl
+
+val zipWithT(#a #b #c:Type)(#n:nat):
+       (a -> b -> c `cost` n)
+    -> ls1:list a
+    -> ls2:list b
+    -> list c `cost` (length ls1 * (n+2) + 2)
+let rec zipWithT #_ #_ #_ #n f ls1 ls2 =
+    match ls1, ls2 with
+    | [], _ -> [] |> incRet 2
+    | _, [] -> [] |> incRet (length ls1 * (n+2) + 2)
+    | x::xs, y::ys ->
+        let! tl = zipWithT f xs ys in
+        let! r = f x y in
+        r :: tl |> incRet 2
+
+val force_zipWithT_cons(#a #b #c:Type)(#n:nat):
+    f: (a -> b -> c `cost` n)
+    -> ls1:list a
+    -> ls2:list b
+    -> Lemma (match ls1, ls2 with
+              | [], _ | _, [] -> True
+              | x::xs, y::ys ->
+                  force (zipWithT f ls1 ls2) == force (f x y)::force (zipWithT f xs ys))
+let force_zipWithT_cons #_ #_ #_ #_ _ _ _ = ()
+
+val zipWith(#a #b #c:Type):
+       (a -> b -> c)
+    -> ls1:list a
+    -> ls2:list b
+    -> list c `cost` (length ls1 * 2 + 2)
+let zipWith #_ #_ #_ f =
+    zipWithT (fun x y -> ret (f x y))
+
+val zip(#a #b:Type):
+       ls1:list a
+    -> ls2:list b
+    -> list (a ** b) `cost` (length ls1 * 2 + 2)
+let zip #_ #_ = zipWith Mktuple2
+
+val tryZipWithT(#a #b #c:Type)(#n:nat):
+    (a -> b -> c `cost` n)
+    -> ls1:list a
+    -> ls2:list b
+    -> option (list c) `cost` (length ls1 * (n + 2) + 2)
+let rec tryZipWithT #_ #_ #_ #n f ls1 ls2 =
+    match ls1, ls2 with
+    | [], _ -> Some [] |> incRet 2
+    | _::_, [] -> None |> incRet (length ls1 * (n + 2) + 2)
+    | x::xs, y::ys ->
+        let! hd = f x y in
+        let! tl = tryZipWithT f xs ys in
+        begin match tl with
+        | Some tl -> Some (hd::tl) |> incRet 2
+        | None -> None |> incRet 2
+        end
+
+val force_tryZipWithT_cons(#a #b #c:Type)(#n:nat):
+    f: (a -> b -> c `cost` n)
+    -> ls1:list a
+    -> ls2:list b
+    -> Lemma (match ls1, ls2 with
+              | [], _ | _, [] -> True
+              | x::xs, y::ys ->
+                  force (tryZipWithT f ls1 ls2) ==
+                  begin match force (tryZipWithT f xs ys) with
+                  | Some tl -> Some (force (f x y)::tl)
+                  | None -> None end)
+let force_tryZipWithT_cons #_ #_ #_ #_ _ _ _ = ()
+
+val force_tryZipWithT_length(#a #b #c:Type)(#n:nat):
+    f: (a -> b -> c `cost` n)
+    -> ls1:list a
+    -> ls2:list b
+    -> Lemma (match force (tryZipWithT f ls1 ls2) with
+              | None -> True
+              | Some r -> length r == length ls1)
+let rec force_tryZipWithT_length #_ #_ #_ #_ f ls1 ls2 =
+    match ls1, ls2 with
+    | [], _ | _::_, [] -> ()
+    | x::xs, y::ys -> force_tryZipWithT_cons f ls1 ls2;
+                      force_tryZipWithT_length f xs ys
+
+val tryZipWith(#a #b #c:Type):
+    (a -> b -> c)
+    -> ls1:list a
+    -> ls2:list b
+    -> option (list c) `cost` (length ls1 * 2 + 2)
+let tryZipWith #_ #_ #_ f =
+    tryZipWithT (fun x y -> ret (f x y))
+
+val tryZip(#a #b #c:Type):
+    ls1:list a
+    -> ls2:list b
+    -> option (list (a **b)) `cost` (length ls1 * 2 + 2)
+let tryZip #_ #_ #_ =
+    tryZipWith Mktuple2
 
 val revAppend(#a:Type): l1:list a -> list a
     -> list a `cost` (2 * length l1 + 2)
@@ -245,6 +333,38 @@ val fold(#a #s:Type):
     -> ls:list a
     -> s `cost` (4 * length ls + 4)
 let fold #_ #_ f = foldT (fun state x -> f state x |> ret)
+
+val foldOT(#a #s:Type)(#n:nat):
+    (s -> a -> option s `cost` n)
+    -> s
+    -> ls:list a
+    -> Tot (option s `cost` (length ls * (n + 4) + 4))
+           (decreases (length ls))
+let rec foldOT #_ #s #n f st ls =
+    match ls with
+    | [] -> Some st |> incRet 4
+    | x::xs ->
+        let! st = (f st x |> inc 4) <: (option s `cost` (n+4)) in
+        begin match st with
+        | None -> None |> incRet (length xs * (n + 4) + 4)
+        | Some st -> foldOT f st xs
+        end
+
+val foldIgnoreT(#a #s:Type)(#n:nat):
+    (s -> a -> option s `cost` n)
+    -> s
+    -> ls:list a
+    -> Tot (option s `cost` (length ls * (n + 4) + 4))
+           (decreases (length ls))
+let rec foldIgnoreT #_ #s #n f st ls =
+    match ls with
+    | [] -> Some st |> incRet 4
+    | x::xs ->
+        let! st' = (f st x |> inc 4) <: (option s `cost` (n+4)) in
+        begin match st' with
+        | None -> foldOT f st xs
+        | Some st' -> foldOT f st' xs
+        end
 
 (* Special Folds *)
 val sum: ls:list int -> int `cost` (length ls * 4 + 4)

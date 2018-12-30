@@ -1,6 +1,6 @@
 type file
 id Zulib
-version 0.3.38-alpha003
+version 0.3.38-alpha004
 authors ZenProtocol
 description
 	Zen Protocol ZFStar standard library

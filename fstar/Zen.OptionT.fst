@@ -89,6 +89,12 @@ val map(#a #b:Type)(#n:nat): (a -> b) -> a `optionT` n -> b `optionT` n
 let map #_ #_ #_ f mx =
   mx >>= (f >> some)
 
+val force_map(#a #b:Type)(#n:nat):
+    f:(a -> b)
+    -> mx: (option a `Cost.t` n)
+    -> Lemma( Cost.force (f `map` mx) == f `Opt.map` Cost.force mx )
+let force_map #_ #_ #_ _ _ = ()
+
 val (<$>) (#a #b:Type)(#n:nat): (a -> b) -> a `optionT` n -> b `optionT` n
 let (<$>) = map
 
@@ -101,6 +107,12 @@ val ap(#a #b:Type)(#m #n:nat):
   -> b `optionT` (m+n)
 let ap #_ #_ #_ #_ mf mx =
   mf >>= (fun f -> f `map` mx)
+
+val force_ap(#a #b:Type)(#m #n:nat):
+  mf: ((a -> b) `optionT` n)
+  -> mx: Cost.t (option a) m
+  -> Lemma ( Cost.force (mf `ap` mx) == Cost.force mf `Opt.ap` Cost.force mx )
+let force_ap #_ #_ #_ #_ _ _ = ()
 
 val (<*>) (#a #b:Type)(#m #n:nat):
   (a->b) `optionT` m
