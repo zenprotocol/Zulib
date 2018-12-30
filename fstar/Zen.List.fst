@@ -354,16 +354,16 @@ val foldIgnoreT(#a #s:Type)(#n:nat):
     (s -> a -> option s `cost` n)
     -> s
     -> ls:list a
-    -> Tot (option s `cost` (length ls * (n + 4) + 4))
+    -> Tot (s `cost` (length ls * (n + 4) + 4))
            (decreases (length ls))
 let rec foldIgnoreT #_ #s #n f st ls =
     match ls with
-    | [] -> Some st |> incRet 4
+    | [] -> st |> incRet 4
     | x::xs ->
         let! st' = (f st x |> inc 4) <: (option s `cost` (n+4)) in
         begin match st' with
-        | None -> foldOT f st xs
-        | Some st' -> foldOT f st' xs
+        | None -> foldIgnoreT f st xs
+        | Some st' -> foldIgnoreT f st' xs
         end
 
 (* Special Folds *)
