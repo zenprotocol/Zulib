@@ -179,6 +179,10 @@ Target "Build" (fun _ ->
       "fsharp/Extracted/Zen.Hash.Base.fs";
       "fsharp/Realized/Zen.MerkleTree.fs";
       "fsharp/Realized/Zen.Bitcoin.fs";
+      "fsharp/Realized/Zen.Int64.Conversion.fs";
+      "fsharp/Realized/Zen.UInt64.Conversion.fs";
+      "fsharp/Realized/Zen.UInt32.Conversion.fs";
+      "fsharp/Realized/Zen.UInt8.Conversion.fs";
     |]
 
   let checker = FSharpChecker.Create()
