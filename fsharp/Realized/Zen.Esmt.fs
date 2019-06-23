@@ -1,4 +1,4 @@
-module Zen.SparseMerkleTree
+module Zen.Esmt
 
 open Org.BouncyCastle.Crypto.Digests
 
@@ -96,6 +96,6 @@ let private ensureBigEndian =
     else
         id
 
-let serializeU64 value =
-        System.BitConverter.GetBytes (value:uint64)
-        |> ensureBigEndian
+let serializeU64 (value:uint64) : Zen.Cost.Realized.t<byte[], Prims.unit> =
+        lazy (System.BitConverter.GetBytes value |> ensureBigEndian)
+        |> Zen.Cost.Realized.C

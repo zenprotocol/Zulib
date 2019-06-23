@@ -178,7 +178,7 @@ Target "Build" (fun _ ->
       "fsharp/Realized/Zen.Crypto.fs";
       "fsharp/Extracted/Zen.Hash.Base.fs";
       "fsharp/Realized/Zen.MerkleTree.fs";
-      "fsharp/Realized/Zen.SparseMerkleTree.fs";
+      "fsharp/Realized/Zen.Esmt.fs";
       "fsharp/Realized/Zen.Bitcoin.fs";
       "fsharp/Realized/Zen.Int64.Conversion.fs";
       "fsharp/Realized/Zen.UInt64.Conversion.fs";
