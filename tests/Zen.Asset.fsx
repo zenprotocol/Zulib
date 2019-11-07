@@ -1,5 +1,6 @@
 #I "../.paket/load/net47"
 #r "../bin/Zulib.dll"
+#r "../packages/FsBech32/lib/net45/FsBech32.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
 
