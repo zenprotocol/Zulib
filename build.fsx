@@ -154,6 +154,7 @@ Target "Build" (fun _ ->
       "fsharp/Realized/Zen.Set.fs";
       "fsharp/Extracted/Zen.OptionT.fs";
       "fsharp/Extracted/Zen.ResultT.fs";
+      "fsharp/Realized/Zen.ListRealized.fs";
       "fsharp/Extracted/Zen.List.fs";
       "fsharp/Realized/Zen.Array.Base.fs";
       "fsharp/Realized/FStar.String.fs";

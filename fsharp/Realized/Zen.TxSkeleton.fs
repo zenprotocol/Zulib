@@ -61,14 +61,20 @@ let insertOutput (output : output) (txSkeleton : txSkeleton) : txSkeleton =
 let addInput (input : input) (txSkeleton : txSkeleton) : Cost.t<txSkeleton, unit> =
     lazy (insertInput input txSkeleton) |> Cost.C
 
+let rec private addPointedOutputsAux
+    (pointedOutputs : Prims.list<pointedOutput>)
+    (txSkeleton : txSkeleton)
+    : txSkeleton =
+    match pointedOutputs with
+    | Prims.Nil ->
+        txSkeleton
+    | Prims.Cons(po, pos) ->
+        insertInput (PointedOutput po) txSkeleton
+        |> addPointedOutputsAux pos
+
 let rec private addPointedOutputs (pointedOutputs : Prims.list<pointedOutput>)
         (txSkeleton : txSkeleton) : Cost.t<txSkeleton, unit> =
-    lazy (match pointedOutputs with
-          | Prims.Nil -> txSkeleton
-          | Prims.Cons(pointedOutput, pointedOutputs) ->
-              insertInput (PointedOutput pointedOutput) txSkeleton
-              |> addPointedOutputs pointedOutputs
-              |> Cost.__force)
+    lazy (addPointedOutputsAux pointedOutputs txSkeleton)
     |> Cost.C
 
 let rec addInputs (inputs : Prims.list<input>)

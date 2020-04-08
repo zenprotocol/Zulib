@@ -139,26 +139,13 @@ val force_map_length(#a #b:Type):
 let force_map_length #_ #_ f = force_mapT_length (f>>ret)
 
 val revAppend(#a:Type): l1:list a -> list a
-    -> list a `cost` (2 * length l1 + 2)
+  -> list a `cost` (2 * length l1 + 2)
 let rec revAppend #_ l1 l2 = match l1 with
-    | [] -> l2 |> incRet 2
-    | hd::tl -> revAppend tl (hd::l2) |> inc 2
-
-val force_revAppend_length(#a:Type):
-    l1:list a
-    -> l2: list a
-    -> Lemma (length (force (revAppend l1 l2)) == length l1 + length l2)
-let rec force_revAppend_length #_ l1 l2 = match l1 with
-    | [] -> ()
-    | hd::tl -> force_revAppend_length tl (hd::l2)
+  | [] -> l2 |> incRet 2
+  | hd::tl -> revAppend tl (hd::l2) |> inc 2
 
 val rev(#a:Type): ls:list a -> list a `cost` (2 * length ls + 2)
-let rev #_ l = revAppend l []
-
-val force_rev_length(#a:Type):
-    ls:list a
-    -> Lemma (length (force (rev ls)) == length ls)
-let force_rev_length #_ l = force_revAppend_length l []
+let rev #_ l = Zen.ListRealized.reverse l
 
 val intersperse(#a:Type): a -> ls:list a -> list a `cost` (4 * length ls + 4)
 let rec intersperse #_ x = function
