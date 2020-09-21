@@ -17,7 +17,7 @@ let ofResultTxSkel(tx: result txSkeleton): contractResult `cost` 3 =
 
 val ofOptionTxSkel: string -> option txSkeleton -> contractResult `cost` 3
 let ofOptionTxSkel msg tx =
-    RT.ofOption "msg" tx
+    RT.ofOption msg tx
     >>= ofResultTxSkel
 
 let setMessage (msg: message) (cRes: contractResult): contractResult `cost` 3 =
