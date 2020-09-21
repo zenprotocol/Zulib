@@ -1,1 +1,3 @@
-.paket/paket.exe
+#!/bin/sh
+
+mono .paket/paket.exe $@
