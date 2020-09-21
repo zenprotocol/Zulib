@@ -5,7 +5,6 @@ source https://nuget.org/api/v2
 
 nuget BouncyCastle
 nuget FAKE ~> 4
-nuget FsBech32 >= 0.1.0.7
 nuget FsCheck
 nuget FSharp.Compatibility.OCaml
 nuget FSharpx.Collections
@@ -15,6 +14,7 @@ nuget ZFStar 0.0.26
 
 source https://www.myget.org/F/zenprotocol/api/v2
 
+nuget FsBech32 0.1.4
 nuget zen_z3_linux 4.5.1.8-v1f29cebd4df
 nuget zen_z3_osx 4.5.1.8-v1f29cebd4df6
 nuget zen_z3_windows 4.5.1.7-v1f29cebd4df

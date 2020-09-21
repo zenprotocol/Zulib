@@ -202,7 +202,7 @@ Target "Build" (fun _ ->
       //"-r"; "../../packages/libsodium-net/lib/Net40/Sodium.dll"
       "-r"; "packages/FSharpx.Collections/lib/net40/FSharpx.Collections.dll"
       "-r"; "packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
-      "-r"; "packages/FsBech32/lib/net45/FsBech32.dll"
+      "-r"; "packages/FsBech32/lib/net47/FsBech32.dll"
     |]
 
   let messages, exitCode =
