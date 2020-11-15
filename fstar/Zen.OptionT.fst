@@ -128,3 +128,24 @@ let (>=>) #_ #_ #_ #_ #_ f g =
 val (<=<) (#a #b #c:Type)(#m #n:nat):
   (b -> c `optionT` n) -> (a -> b `optionT` m) -> (a -> c `optionT` (m+n))
 let (<=<) #_ #_ #_ #_ #_ g f = f >=> g
+
+val tryMapT (#a #b : Type) (#n : nat) :
+    (a -> b `optionT` n)
+    -> ls:list a
+    -> (ls':list b{length ls' == length ls}) `optionT` (length ls * (n + 20) + 20)
+let rec tryMapT #a #b #n f ls =
+  Cost.inc 20
+    begin match ls with
+    | hd :: tl ->
+        let! hd' = f hd in
+        let! tl' = tryMapT f tl in
+        begin match hd', tl' with
+        | Some hd', Some tl' ->
+            let ls': ls': list b {length ls' == length ls} = hd' :: tl' in some ls'
+        | _ ->
+            none
+        end
+    | [] ->
+        []
+        |> incSome (length ls * (n + 20))
+    end
