@@ -174,5 +174,6 @@ let rec tryMapT #a #b #n f ls =
             failw msg
         end
     | [] ->
-        [] |> incOK (length ls * (n + 20))
+        []
+        |> incOK (length ls * (n + 20))
     end
