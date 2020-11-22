@@ -5,8 +5,7 @@ open Prims
 include FStar.Pervasives.Native
 
 noeq type result (a:Type) =
-  | OK   : v:a -> result a
-  | EX   : e:exn -> result a
+  | OK  : v:a -> result a
   | ERR : msg:string -> result a
 
 (* An SMT-pattern to control unfolding inductives;
