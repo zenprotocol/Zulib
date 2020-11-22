@@ -1,4 +1,4 @@
-#I @".paket/load/"
+#I @".paket/load/net47"
 #I @"packages/"
 
 #load @"Zen.FSharp.Compiler.Service.fsx"
