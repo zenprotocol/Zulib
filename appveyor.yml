@@ -1,10 +1,10 @@
-image: Visual Studio 2017
+image: Ubuntu1604
 
 version: 0.0.{build}
 
 environment:
   MYGET_TOKEN:
-    secure: deKebLALSKFBV5pPo4H6u1TZF0IC2Itlp9EpSACzlI1idYT+ldrkTXeGK5CniBQF
+    secure: tyLfoWjP8lgJNO8kBD1NQX4twHj/GVSwTUm/GG2yVAM3Ir3F3d7jzFEThgeFE96e
 
 init:
   # Set "build version number" to "short-commit-hash" or when tagged to "tag name" (Travis style)
@@ -14,15 +14,19 @@ init:
         Update-AppveyorBuild -Version "$($env:APPVEYOR_REPO_TAG_NAME.TrimStart("v"))"
       }
  
+install:
+  - sudo apt install fsharp -y
+ 
 cache:
   - packages
 
 build_script:
-  - .paket\paket.exe restore
-  - build.cmd Verify
-  - build.cmd Extract
-  - build.cmd Build
-  - .paket\paket.exe pack --version %APPVEYOR_BUILD_VERSION% .
+  - mono .paket/paket.exe restore
+  - ./build.sh Verify
+  - ./build.sh Extract
+  - ./build.sh Build
+  - ./build.sh Test
+  - mono .paket/paket.exe pack --version $APPVEYOR_BUILD_VERSION .
 
 artifacts:
   - path: '*.nupkg'
@@ -31,7 +35,7 @@ deploy:
   - provider: NuGet
     server: https://www.myget.org/F/zenprotocol/api/v2/package
     api_key:
-      secure: deKebLALSKFBV5pPo4H6u1TZF0IC2Itlp9EpSACzlI1idYT+ldrkTXeGK5CniBQF
+      secure: tyLfoWjP8lgJNO8kBD1NQX4twHj/GVSwTUm/GG2yVAM3Ir3F3d7jzFEThgeFE96e
     skip_symbols: true
     on:
       appveyor_repo_tag: true        # deploy on tag push only
