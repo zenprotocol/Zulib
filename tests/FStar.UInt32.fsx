@@ -108,4 +108,4 @@ type U32Properties =
     static member ``zmul_mod equivalent to fsmul_mod`` (x: Z32.t) (y: Z32.t) =
         Z32.mul_mod x y = x * y
 
-Check.QuickAll<U32Properties>()
+Check.QuickThrowOnFailureAll<U32Properties>()

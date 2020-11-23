@@ -31,4 +31,4 @@ type StringProperties =
     static member ``cat is string append`` (s1: S.t) (s2: S.t) =
         C.__force (S.cat s1 s2) = Array.append s1 s2
 
-Check.QuickAll<StringProperties>()
+Check.QuickThrowOnFailureAll<StringProperties>()

@@ -119,4 +119,4 @@ type ListProperties =
                | FStar.Pervasives.Native.None, None -> true
                | _ -> false )
 
-Check.QuickAll<ListProperties>()
+Check.QuickThrowOnFailureAll<ListProperties>()

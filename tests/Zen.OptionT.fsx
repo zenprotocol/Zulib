@@ -49,4 +49,4 @@ type TryMapTProperties =
         ((OT.tryMapT 0L (fun x -> x) ls) |> C.__force) = (OT.none () |> C.__force)
     
 
-Check.QuickAll<TryMapTProperties>()
+Check.QuickThrowOnFailureAll<TryMapTProperties>()

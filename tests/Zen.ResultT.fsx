@@ -49,4 +49,4 @@ type TryMapTProperties =
         ((RT.tryMapT 0L (fun x -> x) ls) |> C.__force) = (RT.failw () "ERROR"B |> C.__force)
     
 
-Check.QuickAll<TryMapTProperties>()
+Check.QuickThrowOnFailureAll<TryMapTProperties>()

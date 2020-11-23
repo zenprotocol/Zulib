@@ -30,4 +30,4 @@ type CharProperties =
                let fsUppercase = System.Char.ToUpper c
                zUppercase = fsUppercase )
 
-Check.QuickAll<CharProperties>()
+Check.QuickThrowOnFailureAll<CharProperties>()

@@ -98,4 +98,4 @@ type I64Properties =
     static member ``zmul_mod equivalent to fsmul_mod`` (x: Z64.t) (y: Z64.t) =
         Z64.mul_mod x y = x * y
 
-Check.QuickAll<I64Properties>()
+Check.QuickThrowOnFailureAll<I64Properties>()

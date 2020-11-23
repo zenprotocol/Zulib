@@ -48,9 +48,11 @@ type U8Properties =
         end ==> lazy (Z8.op_Subtraction_Hat x y = x - y)
 
     static member ``zMul equivalent to fsMul`` (x: Z8.t) (y: Z8.t) =
+        let x = x / 10uy
+        let y = y / 10uy
         begin
         try
-            let _ = Checked.(*) x y
+            Checked.(*) x y |> ignore
             true
         with
             | _ -> false
@@ -106,4 +108,4 @@ type U8Properties =
     static member ``zmul_mod equivalent to fsmul_mod`` (x: Z8.t) (y: Z8.t) =
         Z8.mul_mod x y = x * y
 
-Check.QuickAll<U8Properties>()
+Check.QuickThrowOnFailureAll<U8Properties>()

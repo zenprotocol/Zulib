@@ -67,4 +67,4 @@ type DictProperties =
         let fsTryFind = (ZDict.fs d).TryFind(k)
         force zTryFind = fsTryFind
 
-Check.QuickAll<DictProperties>()
+Check.QuickThrowOnFailureAll<DictProperties>()

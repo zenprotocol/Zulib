@@ -82,4 +82,4 @@ type ArrayProperties =
         then C.__force zChunks = Array.sub fsChunks 0 (fsChunks.Length - 1)
         else C.__force zChunks = fsChunks
 
-Check.QuickAll<ArrayProperties>()
+Check.QuickThrowOnFailureAll<ArrayProperties>()
