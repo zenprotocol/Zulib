@@ -34,7 +34,7 @@ type U64Properties =
     static member ``zAdd equivalent to fsAdd`` (x: Z64.t) (y: Z64.t) =
         begin
         try
-            let _ = Checked.(+) x y
+            Checked.(+) x y |> ignore
             true
         with
             | _ -> false
@@ -43,7 +43,7 @@ type U64Properties =
     static member ``zSub equivalent to fsSub`` (x: Z64.t) (y: Z64.t) =
         begin
         try
-            let _ = Checked.(-) x y
+            Checked.(-) x y |> ignore
             true
         with
             | _ -> false
@@ -52,7 +52,7 @@ type U64Properties =
     static member ``zMul equivalent to fsMul`` (x: Z64.t) (y: Z64.t) =
         begin
         try
-            let _ = Checked.(*) x y
+            Checked.(*) x y |> ignore
             true
         with
             | _ -> false
