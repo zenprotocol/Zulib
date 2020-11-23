@@ -234,7 +234,6 @@ Target "Default" ( fun _ ->
     Run "Verify"
     Run "Extract"
     Run "Build"
-    Run "Test"
     )
 
 (*
