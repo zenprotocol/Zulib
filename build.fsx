@@ -172,14 +172,14 @@ Target "Build" (fun _ ->
       "fsharp/Extracted/Zen.Types.Main.fs";
       "fsharp/Realized/Zen.Wallet.fs";
       //"fsharp/Extracted/Zen.Wallet.fs";
+      "fsharp/Extracted/Zen.PublicKey.fs";
+      "fsharp/Realized/Zen.Sha3.Realized.fs";
+      "fsharp/Extracted/Zen.Sha3.Extracted.fs";
       "fsharp/Realized/Zen.TxSkeleton.fs";
       "fsharp/Extracted/Zen.Data.fs";
       "fsharp/Extracted/Zen.ContractReturn.fs";
       "fsharp/Extracted/Zen.ContractResult.fs";
-      "fsharp/Extracted/Zen.PublicKey.fs";
       "fsharp/Realized/Zen.Hash.Sha3.fs";
-      "fsharp/Realized/Zen.Sha3.Realized.fs";
-      "fsharp/Extracted/Zen.Sha3.Extracted.fs";
       "fsharp/Realized/Zen.Crypto.fs";
       "fsharp/Extracted/Zen.Hash.Base.fs";
       "fsharp/Realized/Zen.MerkleTree.fs";

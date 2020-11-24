@@ -9,6 +9,8 @@ open Zen.Wallet
 module Cost = Zen.Cost.Realized
 module U64 = FStar.UInt64
 module Native = FStar.Pervasives.Native
+module Sha3 = Zen.Sha3.Realized
+module Sha3E = Zen.Sha3.Extracted
 
 let emptyTxSkeleton : txSkeleton =
     { inputs = 0UL, Map.empty
@@ -108,6 +110,24 @@ let lockToPubKey (asset : asset) (amount:uint64) (pkHash : hash) (txSkeleton : t
                 spend = {asset=asset;amount=amount} }
           insertOutput output txSkeleton)
     |> Cost.C
+
+let lockToPublicKey (asset : asset) (amount:uint64) (pk : publicKey) (txSkeleton : txSkeleton) : Cost.t<txSkeleton, unit> =
+    lazy (
+        let cpk =
+            pk
+            |> Zen.PublicKey.compress
+            |> Cost.__force
+        
+        let pkHash =
+            Sha3.empty
+            |> Sha3E.updateCPK cpk
+            |> Cost.__force
+            |> Sha3.finalize
+            |> Cost.__force
+        
+        lockToPubKey asset amount pkHash txSkeleton
+        |> Cost.__force
+    ) |> Cost.C
 
 let lockToAddress (asset : asset) (amount:uint64) (address : lock) (txSkeleton : txSkeleton) : Cost.t<txSkeleton, unit> =
     lazy (
