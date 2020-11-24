@@ -1,8 +1,4 @@
-module Zen.Hash.Sha3
-
-(*
-==================== DEPRECATED! - Please use Zen.Sha3.Realized ====================
-*)
+module Zen.Sha3.Realized
 
 open Zen.Base
 open Zen.Cost
@@ -18,25 +14,20 @@ assume type t
 
 val empty:t
 
-val updateHash:
-  hash ->
+val updateI64:
+  I64.t ->
   t ->
-  t `cost` (32 * 6)
-
-val updateAsset:
-  asset ->
-  t ->
-  t `cost` (64 * 6)
-
-val updateOutpoint:
-  outpoint ->
-  t ->
-  t `cost` (36 * 6)
+  t `cost` (6 * 8)
 
 val updateByte:
   U8.t ->
   t ->
   t `cost` 6
+
+val updateByteArray(#n:nat):
+  U8.t `A.indexed` n ->
+  t ->
+  t `cost` (6 * n)
 
 val updateU32:
   U32.t ->
@@ -48,20 +39,35 @@ val updateU64:
   t ->
   t `cost` (6 * 8)
 
-val updateI64:
-  I64.t ->
-  t ->
-  t `cost` (6 * 8)
-
 val updateString:
   s:string ->
   t ->
   t `cost` (6 * FStar.String.length s)
 
-val updateByteArray(#n:nat):
-  U8.t `A.indexed` n ->
+val updateHash:
+  hash ->
   t ->
-  t `cost` (6 * n)
+  t `cost` (32 * 6)
+
+val updateSignature:
+  hash ->
+  t ->
+  t `cost` (64 * 6)
+
+val updatePublicKey:
+  hash ->
+  t ->
+  t `cost` (64 * 6)
+
+val updateAsset:
+  asset ->
+  t ->
+  t `cost` (64 * 6)
+
+val updateOutpoint:
+  outpoint ->
+  t ->
+  t `cost` (36 * 6)
 
 val finalize:
   t ->

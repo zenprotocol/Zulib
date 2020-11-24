@@ -121,6 +121,8 @@ Target "Extract" (fun _ ->
        "--extract_module";"Zen.Types.Main";
        "--codegen-lib";"Zen.Types";
        "--extract_module";"Zen.PublicKey";
+       "--extract_module";"Zen.Sha3.Extracted";
+       "--codegen-lib";"Zen.Sha3"
        "--extract_module";"Zen.Hash.Base";
        "--codegen-lib";"Zen.Hash"
        "--extract_module";"Zen.Data";
@@ -176,6 +178,8 @@ Target "Build" (fun _ ->
       "fsharp/Extracted/Zen.ContractResult.fs";
       "fsharp/Extracted/Zen.PublicKey.fs";
       "fsharp/Realized/Zen.Hash.Sha3.fs";
+      "fsharp/Realized/Zen.Sha3.Realized.fs";
+      "fsharp/Extracted/Zen.Sha3.Extracted.fs";
       "fsharp/Realized/Zen.Crypto.fs";
       "fsharp/Extracted/Zen.Hash.Base.fs";
       "fsharp/Realized/Zen.MerkleTree.fs";
