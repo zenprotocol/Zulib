@@ -277,5 +277,19 @@ let rec zip #_ #_ xs ys =
     | ([] , []) ->
         [] |> incRet (18 * length xs + 18)
     | (x :: xs', y :: ys') ->
-        let! r = zip xs' ys'
-        in (x, y) :: r |> incRet 18
+        let! r = zip xs' ys' in
+        (x, y) :: r |> incRet 18
+
+val zipWithT (#a #b #c : Type) (#n: nat) :
+  (a -> b -> c `cost` n)
+  -> (xs : list a)
+  -> (ys : list b {length ys = length xs})
+  -> list c `cost` ((21 + n) * length xs + 21)
+let rec zipWithT #_ #_ #_ #n f xs ys =
+    match (xs , ys) with
+    | ([] , []) ->
+        [] |> incRet ((21 + n) * length xs + 21)
+    | (x :: xs' , y :: ys') ->
+        let! r = zipWithT f xs' ys' in
+        let! fxy = f x y in
+        fxy :: r |> incRet 21
