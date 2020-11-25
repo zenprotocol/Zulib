@@ -280,6 +280,17 @@ let rec zip #_ #_ xs ys =
         let! r = zip xs' ys' in
         (x, y) :: r |> incRet 18
 
+val unzip (#a #b : Type) :
+    (ls : list (a ** b))
+    -> (list a ** list b) `cost` (15 * length ls + 15)
+let rec unzip #_ #_ ls =
+    match ls with
+    | [] ->
+        ([], []) |> incRet (15 * length ls + 15)
+    | (x, y) :: ls' ->
+        let! xs, ys = unzip ls' in
+        (x :: xs, y :: ys) |> incRet 15
+
 val zipWithT (#a #b #c : Type) (#n: nat) :
   (a -> b -> c `cost` n)
   -> (xs : list a)
@@ -293,3 +304,17 @@ let rec zipWithT #_ #_ #_ #n f xs ys =
         let! r = zipWithT f xs' ys' in
         let! fxy = f x y in
         fxy :: r |> incRet 21
+
+val filterT (#a : Type) (#n : nat) :
+    (a -> bool `cost` n)
+    -> (ls : list a)
+    -> list a `cost` (length ls * (n + 17) + 17)
+let rec filterT #_ #n p ls =
+    match ls with
+    | [] ->
+        [] |> incRet (length ls * (n + 17) + 17)
+    | hd :: tl ->
+        let! r = filterT p tl in
+        let! b = p hd in
+        (if b then hd :: r else r)
+        |> incRet 17
