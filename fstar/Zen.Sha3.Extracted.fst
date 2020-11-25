@@ -18,6 +18,6 @@ val updateListWith (#a : Type) (#n : nat) :
     -> ls: list a
     -> Sha3.t
     -> Sha3.t `cost` (length ls * (n + 4) + 8)
-let rec updateListWith #_ #_ upd ls sha3 =
+let updateListWith #_ #_ upd ls sha3 =
   Zen.List.foldT (flip upd) sha3 ls
   |> Zen.Cost.inc 4
