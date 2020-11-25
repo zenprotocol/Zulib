@@ -267,3 +267,15 @@ let rec tryNth #_ ls n =
     if n < length ls
     then nth ls n >>= OT.some |> inc 5
     else OT.incNone (2 * n + 7)
+
+val zip (#a #b : Type) :
+    (xs : list a)
+    -> (ys : list b {length ys = length xs})
+    -> list (a ** b) `cost` (18 * length xs + 18)
+let rec zip #_ #_ xs ys =
+    match (xs , ys) with
+    | ([] , []) ->
+        [] |> incRet (18 * length xs + 18)
+    | (x :: xs', y :: ys') ->
+        let! r = zip xs' ys'
+        in (x, y) :: r |> incRet 18
