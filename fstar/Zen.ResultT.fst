@@ -9,6 +9,16 @@ module OptT = Zen.OptionT
 type resultT (a:Type) (n:nat) = result a `Cost.t` n
 type t : Type -> nat -> Type = resultT
 
+val handleT (#a #b : Type) (#m #n : nat) :
+  (a -> b `Cost.t` m)
+  -> (string -> b `Cost.t` n)
+  -> (res : result a)
+  -> b `Cost.t` (match res with | OK _ -> m + 5 | ERR _ -> n + 5)
+let handleT #_ #_ #_ #_ f g res =
+  match res with
+  | OK x -> f x |> Cost.inc 5
+  | ERR msg -> g msg |> Cost.inc 5
+
 val ok(#a:Type): a -> a `resultT` 0
 let ok #_ = OK >> Cost.ret
 

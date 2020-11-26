@@ -3,6 +3,16 @@ open Zen.Base
 
 type t : Type -> Type = result
 
+val handle (#a #b : Type) :
+  (a -> b)
+  -> (string -> b)
+  -> result a
+  -> b
+let handle #_ #_ f g =
+  function
+  | OK x -> f x
+  | ERR msg -> g msg
+
 val ret(#a:Type): a -> result a
 let ret(#_) = OK
 
