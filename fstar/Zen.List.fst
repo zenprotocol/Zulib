@@ -209,6 +209,27 @@ let sumByT #_ #n f ls =
     mapT f ls `bind_dep` (fun values ->
     sum values <: cost int (length ls * 4 + 4))
 
+val product: ls:list int -> int `cost` (length ls * 4 + 4)
+let product = fold (fun x y -> x * y) 1
+
+val productBy(#a:Type):
+    (a -> int)
+    -> ls: list a
+    -> int `cost` (length ls * 6 + 6)
+let productBy #_ f ls =
+    force_map_length f ls;
+    map f ls `bind_dep` (fun values ->
+    product values <: cost int (length ls * 4 + 4))
+
+val productByT(#a:Type)(#n:nat):
+    (a -> int `cost` n)
+    -> ls: list a
+    -> int `cost` (length ls * (n + 6) + 6)
+let productByT #_ #n f ls =
+    force_mapT_length f ls;
+    mapT f ls `bind_dep` (fun values ->
+    product values <: cost int (length ls * 4 + 4))
+
 val or_: ls : list bool -> bool `cost` (length ls * 4 + 4)
 let or_ = fold ( || ) true
 
