@@ -289,6 +289,39 @@ let rec tryNth #_ ls n =
     then nth ls n >>= OT.some |> inc 5
     else OT.incNone (2 * n + 7)
 
+val take (#a : Type) :
+  (k : nat)
+  -> (ls : list a)
+  -> list a `cost` ((k `min` length ls) * 18 + 18)
+let rec take #_ k ls =
+    match ls with
+    | [] ->
+        [] |> incRet 18
+    | (hd :: tl) ->
+        if k > 0 then
+            begin
+            let! r = take (k - 1) tl
+            in hd :: r |> incRet 18
+            end
+        else
+            [] |> incRet 18
+
+val drop (#a : Type) :
+  (k : nat)
+  -> (ls : list a)
+  -> list a `cost` ((k `min` length ls) * 12 + 12)
+let rec drop #_ k ls =
+    Zen.Cost.inc 12
+        begin match ls with
+        | [] ->
+            ls |> ret
+        | hd :: tl ->
+            if k > 0 then
+                drop (k - 1) tl
+            else
+                ls |> ret
+        end
+
 val zip (#a #b : Type) :
     (xs : list a)
     -> (ys : list b {length ys = length xs})
