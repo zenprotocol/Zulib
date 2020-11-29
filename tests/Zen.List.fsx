@@ -8,6 +8,8 @@ open FsCheck
 module C = Zen.Cost.Realized
 module P = Prims
 module ZL = Zen.List
+module FSL = Microsoft.FSharp.Collections.List
+module FSL' = FSharpx.Collections.List
 
 let rec fsListToZList: list<'a> -> ZL.t<'a> = function
     | [] -> P.Nil
@@ -118,5 +120,97 @@ type ListProperties =
                | FStar.Pervasives.Native.Some x, Some y -> x = y
                | FStar.Pervasives.Native.None, None -> true
                | _ -> false )
+
+    static member ``take length`` (npos : FsCheck.NonNegativeInt) (xs: ZL.t<int>) =
+        lazy begin
+            
+            let k =
+                if ZL.isNull () xs then
+                    0L
+                else
+                    int64 npos.Get % P.length xs
+            
+            let ys =
+                ZL.take k xs
+                |> C.__force
+            
+            P.length ys = k
+        end
+    
+    static member ``drop length`` (npos : FsCheck.NonNegativeInt) (xs: ZL.t<int>) =
+        lazy begin
+            
+            let k =
+                if ZL.isNull () xs then
+                    0L
+                else
+                    int64 npos.Get % P.length xs
+            
+            let ys =
+                ZL.drop k xs
+                |> C.__force
+            
+            P.length ys = P.length xs - k
+        end
+
+    static member ``take and drop`` (npos : FsCheck.NonNegativeInt) (xs: ZL.t<int>) =
+        lazy begin
+            
+            let k =
+                if ZL.isNull () xs then
+                    0L
+                else
+                    int64 npos.Get % P.length xs
+            
+            let ys =
+                xs
+                |> ZL.take k
+                |> C.__force
+                |> ZL.drop k
+                |> C.__force
+            
+            ZL.isNull () ys
+        end
+
+    static member ``drop and take`` (npos : FsCheck.NonNegativeInt) (xs: ZL.t<int>) =
+        lazy begin
+            
+            let k =
+                if ZL.isNull () xs then
+                    0L
+                else
+                    int64 npos.Get % P.length xs
+            
+            let ys =
+                xs
+                |> ZL.drop k
+                |> C.__force
+            
+            let zs =
+                ys
+                |> ZL.take (P.length xs - k)
+                |> C.__force
+            
+            ys = zs
+        end
+
+    static member ``zTake equiv to fsTake`` (npos : FsCheck.NonNegativeInt  ) (xs: ZL.t<int>) =
+        lazy begin
+            
+            let k =
+                if ZL.isNull () xs then
+                    0L
+                else
+                    int64 npos.Get % P.length xs
+            
+            let ys =
+                xs
+                |> ZL.take k
+                |> C.__force
+              
+            zListToFSList ys = FSL.take (int k) (zListToFSList xs)
+        end
+
+
 
 Check.QuickThrowOnFailureAll<ListProperties>()
