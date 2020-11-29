@@ -255,5 +255,53 @@ type ListProperties =
             zs = ps
         end
 
+    static member ``zipWithT pair equiv zip`` (xs' : ZL.t<int>) (ys': ZL.t<int>) =
+        lazy begin
+            
+            let n =
+                min (P.length xs') (P.length ys')
+            
+            let xs =
+                ZL.take n xs' |> C.__force
+
+            let ys =
+                ZL.take n ys' |> C.__force
+
+            let zws =
+                ZL.zipWithT 0L (fun x y -> C.ret (x , y)) xs ys
+                |> C.__force
+
+            let zs =
+                ZL.zip xs ys
+                |> C.__force
+            
+            zws = zs
+        end
+
+    static member ``zipWithT addition`` (xs' : ZL.t<int>) (ys': ZL.t<int>) =
+        lazy begin
+            
+            let n =
+                min (P.length xs') (P.length ys')
+            
+            let xs =
+                ZL.take n xs' |> C.__force
+
+            let ys =
+                ZL.take n ys' |> C.__force
+
+            let zws =
+                ZL.zipWithT 0L (fun x y -> C.ret <| x + y) xs ys
+                |> C.__force
+            
+            let zs =
+                ZL.zip xs ys
+                |> C.__force
+                |> ZL.map (fun (x,y) -> x + y)
+                |> C.__force
+            
+            zws = zs
+        end
+
 
 Check.QuickThrowOnFailureAll<ListProperties>()
