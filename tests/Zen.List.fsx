@@ -303,5 +303,43 @@ type ListProperties =
             zws = zs
         end
 
+    static member ``filterT map invariance`` (xs : ZL.t<int>) =
+        lazy begin
+            
+            let double x = x + x
+
+            let positive x = C.ret (x > 0)
+
+            let mapThenFilter =
+                xs
+                |> ZL.map double
+                |> C.__force
+                |> ZL.filterT 0L positive
+                |> C.__force
+
+            let filterThenMap =
+                xs
+                |> ZL.filterT 0L positive
+                |> C.__force
+                |> ZL.map double
+                |> C.__force
+
+            filterThenMap = mapThenFilter
+        end
+
+
+    static member ``filterT equiv fsFilter`` (xs : ZL.t<int>) =
+        lazy begin
+
+            let positive x = x > 0
+
+            let ys =
+                xs
+                |> ZL.filterT 0L (C.ret << positive)
+                |> C.__force
+            
+            zListToFSList ys = List.filter positive (zListToFSList xs)
+        end
+
 
 Check.QuickThrowOnFailureAll<ListProperties>()
