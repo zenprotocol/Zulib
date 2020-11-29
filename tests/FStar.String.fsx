@@ -21,9 +21,15 @@ type StringProperties =
     static member ``zlength is string length`` (s: S.t) =
         S.length s = int64 (s.Length)
 
-    static member ``string_at compliant with z3str`` (s: S.t) (i: Prims.int) =
-        (0L <= i && i < S.length s) ==>
-            lazy (S.at s i = [| s.[Checked.int32 i] |])
+    static member ``string_at compliant with z3str`` (s: S.t) (i': FsCheck.NonNegativeInt) =
+        lazy (
+            let slen = S.length s
+            if slen = 0L then
+                true
+            else
+                let i = int64 i'.Get % slen
+                S.at s i = [| s.[Checked.int32 i] |]
+        )
 
     static member ``strcat is string append`` (s1: S.t) (s2: S.t) =
         S.strcat s1 s2 = Array.append s1 s2

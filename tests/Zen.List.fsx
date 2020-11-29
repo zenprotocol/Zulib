@@ -105,21 +105,28 @@ type ListProperties =
                let fsMax = List.max (zListToFSList zs)
                C.__force zMax = fsMax )
 
-    static member ``zNth equivalent to fsNth`` (n: int) (zs: ZL.t<int>) =
-        (0 <= n && int64 n < P.length zs) ==>
-        lazy ( let zNth = ZL.nth zs (int64 n)
-               let fsNth = List.nth (zListToFSList zs) n
-               C.__force zNth = fsNth )
+    static member ``zNth equivalent to fsNth`` (n': FsCheck.NonNegativeInt) (zs: ZL.t<int>) =
+        lazy  (
+            let zslen = P.length zs
+            if zslen = 0L then
+                true
+            else
+                let n = int64 n'.Get % zslen
+                let zNth = ZL.nth zs n
+                let fsNth = List.nth (zListToFSList zs) (int n)
+                C.__force zNth = fsNth
+        )
 
-    static member ``zTryNth equivalent to fsTryNth`` (n: int) (zs: ZL.t<int>) =
-        0 <= n ==>
-        lazy ( let zTryNth = ZL.tryNth zs (int64 n)
-               let fsTryNth = zListToFSList zs
-                              |> FSharpx.Collections.Seq.tryNth n
-               match (C.__force zTryNth, fsTryNth) with
-               | FStar.Pervasives.Native.Some x, Some y -> x = y
-               | FStar.Pervasives.Native.None, None -> true
-               | _ -> false )
+    static member ``zTryNth equivalent to fsTryNth`` (n': FsCheck.NonNegativeInt) (zs: ZL.t<int>) =
+        lazy (
+            let n = n'.Get
+            let zTryNth = ZL.tryNth zs (int64 n)
+            let fsTryNth = zListToFSList zs |> FSharpx.Collections.Seq.tryNth n
+            match (C.__force zTryNth, fsTryNth) with
+            | FStar.Pervasives.Native.Some x, Some y -> x = y
+            | FStar.Pervasives.Native.None, None -> true
+            | _ -> false
+        )
 
     static member ``take length`` (npos : FsCheck.NonNegativeInt) (xs: ZL.t<int>) =
         lazy begin

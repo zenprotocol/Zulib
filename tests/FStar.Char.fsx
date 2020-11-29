@@ -14,7 +14,6 @@ type CharProperties =
 
     static member ``zLowercase equivalent to fsLowercase`` (c: char) =
         let charV = System.Convert.ToInt32 c
-        (0 <= charV && charV <= 255) ==>
         lazy ( let zLowercase = Char.lowercase (byte charV)
                                 |> C.__force
                                 |> char
@@ -23,7 +22,6 @@ type CharProperties =
 
     static member ``zUppercase equivalent to fsUppercase`` (c: char) =
         let charV = System.Convert.ToInt32 c
-        (0 <= charV && charV <= 255) ==>
         lazy ( let zUppercase = Char.uppercase (byte charV)
                                 |> C.__force
                                 |> char
