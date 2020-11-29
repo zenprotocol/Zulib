@@ -218,6 +218,42 @@ type ListProperties =
             zListToFSList ys = FSL.take (int k) (zListToFSList xs)
         end
 
+    static member ``unzip zip isomorphism`` (xs' : ZL.t<int>) (ys': ZL.t<int>) =
+        lazy begin
+            
+            let n =
+                min (P.length xs') (P.length ys')
+            
+            let xs =
+                ZL.take n xs' |> C.__force
+
+            let ys =
+                ZL.take n ys' |> C.__force
+
+            let zs =
+                ZL.zip xs ys
+                |> C.__force
+            
+            let us =
+                ZL.unzip zs
+                |> C.__force
+
+            us = (xs , ys)
+        end
+
+    static member ``zip unzip isomorphism`` (ps : ZL.t<int * int>) =
+        lazy begin
+            
+            let (xs , ys) =
+                ZL.unzip ps
+                |> C.__force
+
+            let zs =
+                ZL.zip xs ys
+                |> C.__force
+            
+            zs = ps
+        end
 
 
 Check.QuickThrowOnFailureAll<ListProperties>()
