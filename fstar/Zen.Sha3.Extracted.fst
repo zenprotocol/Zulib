@@ -24,6 +24,15 @@ let updateListWith #_ #_ upd ls sha3 =
   Zen.List.foldT (flip upd) sha3 ls
   |> inc 4
 
+val updateArrayWith (#a : Type) (#n : nat) :
+    (a -> Sha3.t -> Sha3.t `cost` n)
+    -> arr: A.t a
+    -> Sha3.t
+    -> Sha3.t `cost` (A.length arr * (n + 4) + 8)
+let updateArrayWith #_ #_ upd arr sha3 =
+  Zen.Array.foldT (flip upd) sha3 arr
+  |> inc 4
+
 val hashWith (#a : Type) (#n : nat) :
     (a -> Sha3.t -> Sha3.t `cost` n)
     -> a
