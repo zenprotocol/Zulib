@@ -15,6 +15,15 @@ let updateCPK (parity, h) s =
   >>= Sha3.updateHash h
   |> inc 7
 
+val updateContractId : contractId -> Sha3.t -> cost Sha3.t 223
+let updateContractId (v, h) sha3 =
+  Zen.Cost.inc 7
+    begin
+    ret sha3
+    >>= Sha3.updateU32 v
+    >>= Sha3.updateHash h
+    end
+
 val updateListWith (#a : Type) (#n : nat) :
     (a -> Sha3.t -> Sha3.t `cost` n)
     -> ls: list a
