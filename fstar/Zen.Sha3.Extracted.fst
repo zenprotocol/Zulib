@@ -6,6 +6,7 @@ open Zen.Types
 
 module Sha3 = Zen.Sha3.Realized
 module PK = Zen.PublicKey
+module A = Zen.Array
 
 val updateCPK: PK.cpk -> Sha3.t -> Sha3.t `cost` 205
 let updateCPK (parity, h) s =
