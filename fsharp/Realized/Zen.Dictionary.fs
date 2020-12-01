@@ -45,3 +45,6 @@ let tryFind (s:S.t) ((d, _):dictionary<'a>)
 let mapT (_ : Prims.nat) (f : FStar.String.t -> 'a -> Cost.t<'b, unit>) ((d , size) : dictionary<'a>) : Cost.t<dictionary<'a>, unit> =
     Cost.ret (Map.map f d , size)
 
+
+let foldT (_ : Prims.nat) (f : 's -> FStar.String.t -> 'a -> Cost.t<'s, unit>) (x : 's) ((d , _) : dictionary<'a>) : Cost.t<'s, unit> =
+    Map.fold (f << Cost.__force) (Cost.ret x) d

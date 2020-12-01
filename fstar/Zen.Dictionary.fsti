@@ -141,8 +141,8 @@ val mapT (#a #b : Type) (#n : nat) :
     -> (d : dictionary a)
     -> dictionary b `cost` (size d * (n + 2) + 2)
 
-//val foldT(#a #s:Type)(#n:nat):
-//    (s -> a -> s `cost` n)
-//    -> s
-//    -> d:dictionary a
-//    -> s `cost` (length arr * (n + 4) + 4)
+val foldT (#a #s : Type) (#n : nat) :
+    (s -> string -> a -> s `cost` n)
+    -> s
+    -> d:dictionary a
+    -> s `cost` (size d * (n + 4) + 4)
