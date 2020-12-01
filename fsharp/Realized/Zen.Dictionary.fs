@@ -41,3 +41,7 @@ let tryFind (s:S.t) ((d, _):dictionary<'a>)
                       | Some x -> FStar.Pervasives.Native.Some x
     )
     |> Cost.C
+
+let mapT (_ : Prims.nat) (f : FStar.String.t -> 'a -> Cost.t<'b, unit>) ((d , size) : dictionary<'a>) : Cost.t<dictionary<'a>, unit> =
+    Cost.ret (Map.map f d , size)
+
