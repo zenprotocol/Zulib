@@ -48,7 +48,7 @@ let updateLock lock sha3 =
   let! lid = lockId lock in // 17
   match lock with
   | PKLock hash ->
-      inc (31 + 29)
+      inc 60
       begin
       ret sha3
       >>= Sha3.updateU32 lid // 24
@@ -62,19 +62,19 @@ let updateLock lock sha3 =
       >>= updateContractId contractId // 223
       end
   | FeeLock ->
-      inc (223 + 29)
+      inc 252
       begin
       ret sha3
       >>= Sha3.updateU32 lid // 24
       end
   | DestroyLock ->
-      inc (223 + 29)
+      inc 252
       begin
       ret sha3
       >>= Sha3.updateU32 lid // 24
       end
   | ActivationSacrificeLock ->
-      inc (223 + 29)
+      inc 252
       begin
       ret sha3
       >>= Sha3.updateU32 lid // 24
@@ -87,7 +87,7 @@ let updateLock lock sha3 =
       >>= updateContractId contractId // 223
       end
   | CoinbaseLock (blockNumber , hash) ->
-      inc (7 + 29)
+      inc 36
       begin
       ret sha3
       >>= Sha3.updateU32 lid // 24
@@ -95,8 +95,8 @@ let updateLock lock sha3 =
       >>= Sha3.updateHash hash // 192
       end
   | HighVLock _ ->
-      // You can't update an High Version lock!
-      inc (247 + 29)
+      // You can't update an high version lock!
+      inc 276
       begin
       ret sha3
       end
