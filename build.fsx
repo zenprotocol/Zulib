@@ -235,6 +235,7 @@ Target "Consistency" (fun _ ->
   let verification_args =
     [| "--use_hints";
        "--use_hint_hashes"
+       "--record_hints"
        "--cache_checked_modules"
     |]
 
@@ -266,7 +267,7 @@ Target "Consistency" (fun _ ->
   if exitCode <> 0 then
     failwith "extracting consistency failed"
 )
-=
+
 Target "Test" (fun _ ->
     let fsharpi (fsx: string) =
         if EnvironmentHelper.isWindows
