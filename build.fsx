@@ -22,6 +22,10 @@ let getFiles pattern =
 
 let zulibFiles = getFiles "fstar/*.fst" ++ getFiles "fstar/*.fsti"
 
+let consistencyFiles = getFiles "tests/consistency/*.fst"
+
+let consistencyExtractedDir = "tests/consistency/fsharp"
+
 let getHints() = getFiles "fstar/*.hints" ++ getFiles "fstar/*.checked"
 
 let zipHints(): unit =
@@ -33,9 +37,10 @@ let unzipHints(): unit =
 let clearHints(): unit =
     Fake.FileHelper.DeleteFiles <| getHints()
 
-let runFStar args files =
+let join =
+  Array.reduce (fun a b -> a + " " + b)
 
-  let join = Array.reduce (fun a b -> a + " " + b)
+let runFStar args files =
 
   let primsFile = "\"" + FileSystemHelper.currentDirectory + "/fstar/prims.fst" + "\""
   let files = Array.map (fun f -> "\"" + f + "\"") files
@@ -52,6 +57,7 @@ let runFStar args files =
     "--no_default_includes";
     "--include";"fstar/"; |]
   //printfn "%s" (join (fstar ++ args ++ zulibFiles));
+
   ProcessHelper.Shell.AsyncExec (executable, join (fstar ++ args ++ files))
 
 Target "Clean" (fun _ ->
@@ -220,6 +226,47 @@ Target "Build" (fun _ ->
     failwith "building Zulib failed"
     )
 
+Target "Consistency" (fun _ ->
+
+  clearHints();
+  unzipHints();
+
+  // Verification
+  let verification_args =
+    [| "--use_hints";
+       "--use_hint_hashes"
+       "--cache_checked_modules"
+    |]
+
+  let exitCodes =
+    consistencyFiles
+    |> Array.map (fun file -> runFStar verification_args [|file|])
+    |> Async.Parallel
+    |> Async.RunSynchronously
+  
+  if not (Array.forall (fun exitCode -> exitCode = 0) exitCodes)
+    then failwith "Verifying consistency failed"
+
+  // Extraction
+  let extraction_files_args =
+    consistencyFiles
+    |> Array.map (fun filename -> [| "--extract_module"; System.IO.Path.GetFileNameWithoutExtension filename |])
+    |> Array.concat
+  
+  let extraction_args =
+    [|
+      "--lax";
+      "--codegen"; "FSharp";
+      "--odir"; consistencyExtractedDir
+    |] ++ extraction_files_args
+  
+  let exitCode = runFStar extraction_args (zulibFiles ++ consistencyFiles)
+                 |> Async.RunSynchronously
+
+  if exitCode <> 0 then
+    failwith "extracting consistency failed"
+)
+=
 Target "Test" (fun _ ->
     let fsharpi (fsx: string) =
         if EnvironmentHelper.isWindows
