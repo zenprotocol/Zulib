@@ -251,8 +251,7 @@ Target "Consistency" (fun _ ->
   // Extraction
   let extraction_files_args =
     consistencyFiles
-    |> Array.map (fun filename -> [| "--extract_module"; System.IO.Path.GetFileNameWithoutExtension filename |])
-    |> Array.concat
+    |> Array.collect (fun filename -> [| "--extract_module"; System.IO.Path.GetFileNameWithoutExtension filename |])
   
   let extraction_args =
     [|
@@ -261,11 +260,68 @@ Target "Consistency" (fun _ ->
       "--odir"; consistencyExtractedDir
     |] ++ extraction_files_args
   
-  let exitCode = runFStar extraction_args (zulibFiles ++ consistencyFiles)
-                 |> Async.RunSynchronously
+  let exitCode =
+    runFStar extraction_args (zulibFiles ++ consistencyFiles)
+    |> Async.RunSynchronously
 
   if exitCode <> 0 then
     failwith "extracting consistency failed"
+
+  // Compile
+
+  let platform =
+    let platform = System.Environment.OSVersion.Platform
+    if (platform = System.PlatformID.Unix
+        && Directory.Exists "/Applications"
+        && Directory.Exists "/System"
+        && Directory.Exists "/Users"
+        && Directory.Exists "/Volumes")
+            then System.PlatformID.MacOSX
+    else platform
+
+  let frameworkPath =
+    match platform with
+    | System.PlatformID.Unix -> "/usr/lib/mono/4.7-api/"
+    | System.PlatformID.MacOSX -> "/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.7-api/"
+    | _ -> @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\"
+
+  let expandPath : string -> string =
+    fun s -> System.IO.Path.Combine(frameworkPath, s)
+  
+  let checkerArgs filename =
+    [| "fsc.exe"
+       "--noframework"
+       "--mlcompatibility"
+       "--nowarn:62"
+       "-r"; expandPath "mscorlib.dll"
+       "-r"; expandPath "System.Core.dll"
+       "-r"; expandPath "System.dll"
+       "-r"; expandPath "System.Numerics.dll"
+       "-r"; "bin/Zulib.dll"
+       "-r"; "packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
+       "-r"; "packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
+       "-r"; "packages/FSharpx.Collections/lib/net40/FSharpx.Collections.dll"
+       "-r"; "packages/FsBech32/lib/net47/FsBech32.dll" 
+       "-a"; filename
+       "-o"; Path.ChangeExtension(filename , ".dll")
+    |]
+  
+  let tests =
+    getFiles (sprintf "%s/*.fs" consistencyExtractedDir)
+  
+  for test in tests do
+    checkerArgs test
+    |> FSharpChecker.Create().Compile
+    |> Async.RunSynchronously
+    |> fun (errMsgs , status) ->
+        if status <> 0 then
+          for errMsg in errMsgs do
+            eprintfn "%A" errMsg
+          failwithf "test %s created invalid fsharp" test
+
+
+  // Clean
+  //CleanDir consistencyExtractedDir
 )
 
 Target "Test" (fun _ ->
