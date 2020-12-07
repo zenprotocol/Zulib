@@ -319,9 +319,12 @@ Target "Consistency" (fun _ ->
             eprintfn "%A" errMsg
           failwithf "test %s created invalid fsharp" test
 
-
   // Clean
   //CleanDir consistencyExtractedDir
+)
+
+Target "ConsistencyClean" (fun _ ->
+  CleanDir consistencyExtractedDir
 )
 
 Target "Test" (fun _ ->
