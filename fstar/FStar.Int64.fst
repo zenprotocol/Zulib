@@ -152,7 +152,7 @@ unfold let op_Less_Equals_Hat = lte
 
 (* To input / output constants *)
 assume val to_string: t -> string
-assume val of_string: string -> t
+assume val of_string: string -> option t
 
 
 #set-options "--lax"

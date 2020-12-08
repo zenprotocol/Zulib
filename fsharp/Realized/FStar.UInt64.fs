@@ -61,7 +61,14 @@ let op_Greater_Equals_Hat = gte
 let op_Less_Hat = lt
 let op_Less_Equals_Hat = lte
 
-let of_string s = int s
-let to_string s = s.ToString()
+let of_string (s : Prims.string) : t option =
+    try
+        Some (Prims.parse_int (int64 s))
+    with _ ->
+        None
+
+let to_string (x : t) : Prims.string =
+    Prims.to_string (v x)
+
 //let to_string_hex s = Printf.sprintf "%02x" s
 //let to_int s = s

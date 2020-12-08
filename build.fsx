@@ -233,7 +233,7 @@ Target "Consistency" (fun _ ->
 
   // Verification
   let verification_args =
-    [| "--use_hints";
+    [| "--use_hints"
        "--use_hint_hashes"
        "--record_hints"
        "--cache_checked_modules"
