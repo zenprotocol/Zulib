@@ -27,7 +27,11 @@ let getAvailableTokens (asset : asset) (txSkeleton : txSkeleton) : Cost.t<uint64
               | None -> 0UL
               | Some(amount, _) -> amount
 
-          unlockedAmount - lockedAmount)
+          if unlockedAmount > lockedAmount then
+            unlockedAmount - lockedAmount
+          else
+            0UL
+          )
     |> Cost.C
 
 let insertInput (input : input)

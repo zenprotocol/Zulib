@@ -21,7 +21,7 @@ let fsListToZList xs = fsListToZListAux xs Prims.Nil
 
 let zp = 100_000_000UL
 
-let asset = Zen.Asset.zenAsset
+let asset : asset = Zen.Asset.zenAsset
 
 let amount = 14_000_000_000_000UL
 
@@ -40,7 +40,13 @@ let cid =
   |> Zen.Cost.Realized.__force
   |> Option.get
 
-
 let test1 =
   TxSkel.fromWallet asset amount cid w TxSkel.emptyTxSkeleton
+  |> Zen.Cost.Realized.__force
+
+let testGetAvailableTokens =
+  TxSkel.emptyTxSkeleton
+  |> TxSkel.addOutput out
+  |> Zen.Cost.Realized.__force
+  |> TxSkel.getAvailableTokens asset 
   |> Zen.Cost.Realized.__force
