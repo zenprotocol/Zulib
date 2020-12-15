@@ -9,7 +9,7 @@
 
 
 open FsCheck
-
+open Org.BouncyCastle.Crypto.Digests
 open Zen.Types
 
 module P     = Prims
@@ -55,3 +55,87 @@ if hash1 = hash2 then
     failwith "Sha3.updateCPK doesn't update properly."
 else
     printfn "Sha3.updateCPK updates properly."
+
+
+
+let hash1' =
+    Sha3E.hashWith 0L Sha3E.updateCPK cpk1
+    |> C.__force
+if hash1' = hash1 then
+    printf "Sha3.hashWith is working properly."
+else
+    failwith "Sha3.hashWith isn't working properly."
+
+
+
+
+
+
+let empty = new Sha3Digest(256)
+
+let U32ToBytes (value:uint32) =
+    let bytes = System.BitConverter.GetBytes value
+
+    if System.BitConverter.IsLittleEndian then
+        Array.rev bytes
+    else
+        bytes
+
+let uU32 (x : uint32) (sha3 : Sha3Digest) : Sha3Digest =
+    let sha3 = Sha3Digest sha3
+    sha3.BlockUpdate(U32ToBytes x, 0, 4)
+    sha3
+
+let finalize (sha3:Sha3Digest): Extracted.hash =
+    let sha3 = Sha3Digest sha3
+    let hash = Array.zeroCreate 32
+
+    sha3.DoFinal(hash, 0) |> ignore
+    hash
+
+let h1 : Extracted.hash =
+    empty
+    |> uU32 3ul
+    |> uU32 2ul
+    |> uU32 1ul
+    |> finalize
+
+let ofFsList (ls : 'a list) : 'a Prims.list =
+    let rec aux (ls : 'a list) (acc : 'a Prims.list) : 'a Prims.list =
+        match ls with
+        | [] -> acc
+        | (hd::tl) -> aux tl (Prims.Cons(hd,acc))
+    aux ls Prims.Nil
+    |> Zen.List.rev
+    |> C.__force
+
+let ls1 =
+    [ 1ul ; 2ul ; 3ul ]
+    |> ofFsList
+
+let h2 : Extracted.hash =
+    ls1
+    |> Sha3E.hashWith 0L (Sha3E.updateListWith 0L Sha3.updateU32)
+    |> C.__force
+
+if h1 <> h2 then
+    printfn "Sha3.updateListWith is working properly."
+else
+    failwith "Sha3.updateListWith isn't working properly."
+
+
+
+let arr1 =
+    ls1
+    |> Zen.Array.Base.ofList
+    |> C.__force
+
+let h2a : Extracted.hash =
+    arr1
+    |> Sha3E.hashWith 0L (Sha3E.updateArrayWith 0L Sha3.updateU32)
+    |> C.__force
+
+if h1 <> h2a then
+    printfn "Sha3.updateArrayWith is working properly."
+else
+    failwith "Sha3.updateArrayWith isn't working properly."
