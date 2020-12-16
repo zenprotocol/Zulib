@@ -372,3 +372,21 @@ let rec filterT #_ #n p ls =
         let! b = p hd in
         (if b then hd :: r else r)
         |> incRet 17
+
+val chooseT (#a #b : Type) (#n : nat) :
+    (a -> option b `cost` n)
+    -> (ls : list a)
+    -> list b `cost` ((n + 16) * length ls + 16)
+let rec chooseT #a #b #n (f : a -> option b `cost` n) (ls : list a) = // 16
+    match ls with
+    | [] ->
+        incRet ((n + 16) * length ls + 16) []
+    | hd :: tl ->
+        let! r = chooseT f tl in // ((n + 16) * (length ls - 1) + 16)
+        let! res = f hd in // n
+        begin match res with
+        | None ->
+            incRet 16 r
+        | Some x ->
+            incRet 16 (x :: r)
+        end

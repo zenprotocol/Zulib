@@ -108,4 +108,9 @@ type U64Properties =
     static member ``zmul_mod equivalent to fsmul_mod`` (x: Z64.t) (y: Z64.t) =
         Z64.mul_mod x y = x * y
 
+    static member ``of_string to_string isomorphism`` (x : Z64.t) =
+        match Z64.of_string (Z64.to_string x) with
+        | Some y -> x = y
+        | None -> false
+
 Check.QuickThrowOnFailureAll<U64Properties>()

@@ -1,7 +1,9 @@
 #I "../.paket/load/net47"
 #r "../bin/Zulib.dll"
+//#r "../packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
+
 
 open FsCheck
 open System
@@ -97,5 +99,7 @@ type I64Properties =
         Z64.sub_mod x y = x - y
     static member ``zmul_mod equivalent to fsmul_mod`` (x: Z64.t) (y: Z64.t) =
         Z64.mul_mod x y = x * y
+    
+    
 
 Check.QuickThrowOnFailureAll<I64Properties>()
