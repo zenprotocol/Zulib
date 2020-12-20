@@ -1,4 +1,5 @@
 #I "../.paket/load/net47"
+#r "../packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
 #r "../bin/Zulib.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
@@ -14,7 +15,7 @@ module Checked = Operators.Checked
 type Generators =
     static member I64() =
         Arb.from<DoNotSize<int64>>
-        |> Arb.convert DoNotSize.Unwrap DoNotSize
+        //|> Arb.convert DoNotSize.Unwrap DoNotSize
 Arb.register<Generators>()
 
 type U8Properties =
@@ -107,5 +108,11 @@ type U8Properties =
         Z8.sub_mod x y = x - y
     static member ``zmul_mod equivalent to fsmul_mod`` (x: Z8.t) (y: Z8.t) =
         Z8.mul_mod x y = x * y
+
+
+    static member ``of_string to_string isomorphism`` (x : Z8.t) : bool =
+        match Z8.of_string (Z8.to_string x) with
+        | Some y -> x = y
+        | None -> false
 
 Check.QuickThrowOnFailureAll<U8Properties>()
