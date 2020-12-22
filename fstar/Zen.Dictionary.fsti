@@ -141,6 +141,12 @@ val mapT (#a #b : Type) (#n : nat) :
     -> (d : dictionary a)
     -> dictionary b `cost` (size d * (n + 2) + 2)
 
+val force_mapT_length(#a #b:Type)(#n:nat):
+  (f : (string -> a -> b `cost` n))
+  -> (d : dictionary a)
+  -> Lemma ( let result = f `mapT` d in
+             size (force result) == size d )
+
 val foldT (#a #s : Type) (#n : nat) :
     (s -> string -> a -> s `cost` n)
     -> s

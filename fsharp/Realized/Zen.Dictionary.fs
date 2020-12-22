@@ -11,7 +11,7 @@ type dictionary<'a> =
 type t<'a> = dictionary<'a>
 
 let size (d: dictionary<'A>): Prims.nat = int64 (snd d)
-let empty : dictionary<'a> = Map.empty, 0u
+let empty() : dictionary<'a> = Map.empty, 0u
 
 let add (s:S.t) (x:'a) ((d, n):dictionary<'a>)
     : Cost.t<dictionary<'a>, unit> =
@@ -42,8 +42,8 @@ let tryFind (s:S.t) ((d, _):dictionary<'a>)
     )
     |> Cost.C
 
-let mapT (_ : Prims.nat) (f : FStar.String.t -> 'a -> Cost.t<'b, unit>) ((d , size) : dictionary<'a>) : Cost.t<dictionary<'a>, unit> =
-    Cost.ret (Map.map f d , size)
+let mapT (_ : Prims.nat) (f : FStar.String.t -> 'a -> Cost.t<'b, unit>) ((d , size) : dictionary<'a>) : Cost.t<dictionary<'b>, unit> =
+    Cost.ret (Map.map (fun s -> Cost.__force << f s) d , size)
 
 
 let foldT (_ : Prims.nat) (f : 's -> FStar.String.t -> 'a -> Cost.t<'s, unit>) (x : 's) ((d , _) : dictionary<'a>) : Cost.t<'s, unit> =
