@@ -327,7 +327,6 @@ type ListProperties =
             filterThenMap = mapThenFilter
         end
 
-
     static member ``filterT equiv fsFilter`` (xs : ZL.t<int>) =
         lazy begin
 
@@ -340,6 +339,10 @@ type ListProperties =
             
             zListToFSList ys = List.filter positive (zListToFSList xs)
         end
+
+    static member ``zChooseT equiv fsChoose`` (xs : ZL.t<int>) (f : int -> option<int>) =
+        zListToFSList (C.__force <| ZL.chooseT 0L (C.ret << f) xs) = List.choose f (zListToFSList xs)
+        
 
 
 Check.QuickThrowOnFailureAll<ListProperties>()

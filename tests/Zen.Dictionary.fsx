@@ -70,7 +70,13 @@ type DictProperties =
     static member ``zMapT equivalent to fsMap`` (d: ZDict<int>) (f : byte[] -> int -> int) =
         let zd = ZDict.v d
         let fsd = ZDict.fs d
-        let (m , _) = C.__force <| ZD.mapT 0L (fun s x -> C.ret (f s x)) zd
+        let (m , _) = C.__force <| ZD.mapT 0L (fun k v -> C.ret (f k v)) zd
         Map.map f fsd = m
+
+    static member ``zFoldT equivalent to fsFold`` (d: ZDict<int>) (f : int -> byte[] -> int -> int) (x : int) =
+        let zd = ZDict.v d
+        let fsd = ZDict.fs d
+        let y = C.__force <| ZD.foldT 0L (fun s k v -> C.ret (f s k v)) x zd
+        Map.fold f x fsd = y
 
 Check.QuickThrowOnFailureAll<DictProperties>()
