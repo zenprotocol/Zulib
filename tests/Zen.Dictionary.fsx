@@ -67,4 +67,10 @@ type DictProperties =
         let fsTryFind = (ZDict.fs d).TryFind(k)
         force zTryFind = fsTryFind
 
+    static member ``zMapT equivalent to fsMap`` (d: ZDict<int>) (f : byte[] -> int -> int) =
+        let zd = ZDict.v d
+        let fsd = ZDict.fs d
+        let (m , _) = C.__force <| ZD.mapT 0L (fun s x -> C.ret (f s x)) zd
+        Map.map f fsd = m
+
 Check.QuickThrowOnFailureAll<DictProperties>()
