@@ -44,13 +44,8 @@ let megatest2 : uint_t =
     v (y `rem` x)
 
 let test_string : t =
-  let x : t = uint_to_t 5 in
-  match of_string (to_string x) with
-  | None -> (uint_to_t 0) | Some y -> y // (y *^ uint_to_t 1)
+    let x : t = uint_to_t 5 in
+    match of_string (to_string x) with
+    | None -> (uint_to_t 0) | Some y -> y
 
-(*)
-
-(* Modulo primitives *)
-val mod: a:uint_t -> b:uint_t{b <> 0} -> uint_t
-let mod a b = a - ((a`div_floor`b) * b)
 
