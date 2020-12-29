@@ -228,9 +228,6 @@ Target "Build" (fun _ ->
 
 Target "Consistency" (fun _ ->
 
-  clearHints();
-  unzipHints();
-
   // Verification
   let verification_args =
     [| "--use_hints"
