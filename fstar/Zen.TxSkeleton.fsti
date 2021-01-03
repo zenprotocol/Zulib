@@ -81,6 +81,12 @@ val mint:
   -> txSkeleton
   -> txSkeleton `cost` 64
 
+val safeMint:
+  amount:U64.t
+  -> asset
+  -> txSkeleton
+  -> option txSkeleton `cost` 64
+
 val destroy:
   amount:U64.t
   -> asset

@@ -31,8 +31,8 @@ let spnd = { asset=asset; amount=zp }
 
 let out = { lock=PKLock hash; spend=spnd }
 
-let w : wallet =
-  List.init 150_000 (fun i -> { txHash=hash; index=uint32 i } , out )
+let small_wallet : wallet =
+  List.init 15 (fun i -> { txHash=hash; index=uint32 i } , out )
   |> fsListToZList
 
 let cid =
@@ -41,12 +41,29 @@ let cid =
   |> Option.get
 
 let test1 =
-  TxSkel.fromWallet asset amount cid w TxSkel.emptyTxSkeleton
+  TxSkel.fromWallet asset amount cid small_wallet TxSkel.emptyTxSkeleton
   |> Zen.Cost.Realized.__force
 
 let testGetAvailableTokens =
   TxSkel.emptyTxSkeleton
   |> TxSkel.addOutput out
   |> Zen.Cost.Realized.__force
-  |> TxSkel.getAvailableTokens asset 
+  |> TxSkel.getAvailableTokens asset
   |> Zen.Cost.Realized.__force
+
+let test_safe_mint_None : unit =
+    let res =
+      TxSkel.safeMint 0UL asset TxSkel.emptyTxSkeleton
+      |> Zen.Cost.Realized.__force
+    if res <> None then
+      failwith "safe mint allows zero amount"
+
+let test_safe_mint_Some : unit =
+    let res =
+      TxSkel.safeMint 123UL asset TxSkel.emptyTxSkeleton
+      |> Zen.Cost.Realized.__force
+    match res with
+    | None ->
+      failwith "safe mint allows non-zero amounts"
+    | Some _ ->
+      ()

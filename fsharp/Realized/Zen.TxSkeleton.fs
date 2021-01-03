@@ -160,6 +160,27 @@ let mint (amount : U64.t) (asset : asset)
           addInput input txSkeleton |> Cost.__force)
     |> Cost.C
 
+let safeMint (amount : U64.t) (asset : asset)
+    (txSkeleton : txSkeleton) : Cost.t<txSkeleton option, unit> =
+    lazy (
+
+        if amount = 0UL then
+
+            Native.None
+        
+        else
+        
+            let mintSpend = { asset = asset; amount = amount }
+
+            let input = Mint mintSpend
+
+            addInput input txSkeleton
+            |> Cost.__force
+            |> Native.Some
+        
+        )
+    |> Cost.C
+
 let destroy (amount : U64.t) (asset : asset)
     (txSkeleton : txSkeleton) : Cost.t<txSkeleton, unit> =
     lazy (let destroySpend =
