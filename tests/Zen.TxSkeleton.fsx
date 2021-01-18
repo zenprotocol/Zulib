@@ -1,5 +1,6 @@
 #I "../.paket/load/net47"
 #r "../packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
+#r "../packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
 #r "../bin/Zulib.dll"
 
 open System
@@ -19,11 +20,11 @@ let rec fsListToZListAux (orig : list<'a>) (acc : ZL.t<'a>) : ZL.t<'a> =
 
 let fsListToZList xs = fsListToZListAux xs Prims.Nil
 
-let zp = 100_000_000UL
+let zp = 100000000UL
 
 let asset : asset = Zen.Asset.zenAsset
 
-let amount = 14_000_000_000_000UL
+let amount = 14000000000000UL
 
 let hash = Zen.Hash.Sha3.empty |> Zen.Hash.Sha3.finalize |> Zen.Cost.Realized.__force
 
