@@ -26,6 +26,7 @@ build_script:
   - ./build.sh Verify
   - ./build.sh Extract
   - ./build.sh Build
+  - ./build.sh Consistency
   - ./build.sh Test
   - mono .paket/paket.exe pack --version $APPVEYOR_BUILD_VERSION .
 
