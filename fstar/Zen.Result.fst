@@ -3,11 +3,18 @@ open Zen.Base
 
 type t : Type -> Type = result
 
+val handle (#a #b : Type) :
+  (a -> b)
+  -> (string -> b)
+  -> result a
+  -> b
+let handle #_ #_ f g =
+  function
+  | OK x -> f x
+  | ERR msg -> g msg
+
 val ret(#a:Type): a -> result a
 let ret(#_) = OK
-
-val fail: exn -> result 'a
-let fail e = EX e
 
 val failw: string -> result 'a
 let failw msg = ERR msg
@@ -21,7 +28,6 @@ val bind(#a #b:Type): result a -> (a -> result b) -> result b
 let bind #_ #_ mx f =
   match mx with
   | OK x -> f x
-  | EX e -> fail e
   | ERR msg -> failw msg
 
 val (>>=) (#a #b:Type): result a -> (a -> result b) -> result b

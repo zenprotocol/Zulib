@@ -1,5 +1,9 @@
 module Zen.Hash.Sha3
 
+(*
+==================== DEPRECATED! - Please use Zen.Sha3.Realized ====================
+*)
+
 open Zen.Base
 open Zen.Cost
 open Zen.Types

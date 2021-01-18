@@ -1,4 +1,6 @@
 #I "../.paket/load/net47"
+#r "../packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
+#r "../packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
 #r "../bin/Zulib.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
@@ -67,4 +69,16 @@ type DictProperties =
         let fsTryFind = (ZDict.fs d).TryFind(k)
         force zTryFind = fsTryFind
 
-Check.QuickAll<DictProperties>()
+    static member ``zMapT equivalent to fsMap`` (d: ZDict<int>) (f : byte[] -> int -> int) =
+        let zd = ZDict.v d
+        let fsd = ZDict.fs d
+        let (m , _) = C.__force <| ZD.mapT 0L (fun k v -> C.ret (f k v)) zd
+        Map.map f fsd = m
+
+    static member ``zFoldT equivalent to fsFold`` (d: ZDict<int>) (f : int -> byte[] -> int -> int) (x : int) =
+        let zd = ZDict.v d
+        let fsd = ZDict.fs d
+        let y = C.__force <| ZD.foldT 0L (fun s k v -> C.ret (f s k v)) x zd
+        Map.fold f x fsd = y
+
+Check.QuickThrowOnFailureAll<DictProperties>()

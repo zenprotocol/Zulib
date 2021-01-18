@@ -1,4 +1,6 @@
 #I "../.paket/load/net47"
+#r "../packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
+#r "../packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
 #r "../bin/Zulib.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
@@ -14,10 +16,10 @@ module Checked = Operators.Checked
 type Generators =
     static member I64() =
         Arb.from<DoNotSize<int64>>
-        |> Arb.convert DoNotSize.Unwrap DoNotSize
+        //|> Arb.convert DoNotSize.Unwrap DoNotSize
     static member Z64() =
         Arb.from<DoNotSize<uint64>>
-        |> Arb.convert DoNotSize.Unwrap DoNotSize
+        //|> Arb.convert DoNotSize.Unwrap DoNotSize
 Arb.register<Generators>()
 
 type U64Properties =
@@ -34,7 +36,7 @@ type U64Properties =
     static member ``zAdd equivalent to fsAdd`` (x: Z64.t) (y: Z64.t) =
         begin
         try
-            let _ = Checked.(+) x y
+            Checked.(+) x y |> ignore
             true
         with
             | _ -> false
@@ -43,7 +45,7 @@ type U64Properties =
     static member ``zSub equivalent to fsSub`` (x: Z64.t) (y: Z64.t) =
         begin
         try
-            let _ = Checked.(-) x y
+            Checked.(-) x y |> ignore
             true
         with
             | _ -> false
@@ -52,7 +54,7 @@ type U64Properties =
     static member ``zMul equivalent to fsMul`` (x: Z64.t) (y: Z64.t) =
         begin
         try
-            let _ = Checked.(*) x y
+            Checked.(*) x y |> ignore
             true
         with
             | _ -> false
@@ -105,7 +107,13 @@ type U64Properties =
         Z64.add_mod x y = x + y
     static member ``zsub_mod equivalent to fssub_mod`` (x: Z64.t) (y: Z64.t) =
         Z64.sub_mod x y = x - y
+    
     static member ``zmul_mod equivalent to fsmul_mod`` (x: Z64.t) (y: Z64.t) =
         Z64.mul_mod x y = x * y
+    
+    static member ``of_string to_string isomorphism`` (x : Z64.t) : bool =
+        match Z64.of_string (Z64.to_string x) with
+        | Some y -> x = y
+        | None -> false
 
-Check.QuickAll<U64Properties>()
+Check.QuickThrowOnFailureAll<U64Properties>()

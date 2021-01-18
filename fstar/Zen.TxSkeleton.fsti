@@ -55,6 +55,13 @@ val lockToPubKey:
   -> txSkeleton
   -> txSkeleton `cost` 64
 
+val lockToPublicKey:
+  asset
+  -> U64.t
+  -> publicKey
+  -> txSkeleton
+  -> txSkeleton `cost` 610
+
 val lockToAddress:
   asset
   -> U64.t
@@ -73,6 +80,12 @@ val mint:
   -> asset
   -> txSkeleton
   -> txSkeleton `cost` 64
+
+val safeMint:
+  amount:U64.t
+  -> asset
+  -> txSkeleton
+  -> option txSkeleton `cost` 64
 
 val destroy:
   amount:U64.t

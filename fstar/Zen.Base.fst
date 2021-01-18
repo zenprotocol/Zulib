@@ -34,19 +34,19 @@ val refineType: a:Type u#t -> p:(a -> prop) -> Type u#t
 let refineType a p = x:a{p x}
 
 (** [|>] is equivalent to F#'s [|>]. *)
-val ( |> ) (#a #b:Type): a -> (a->b) -> b
+val ( |> ) (#a : Type) (#p : a -> Type): (x : a) -> ((x : a) -> p x) -> p x
 let ( |> ) #_ #_ x f = f x
 
 (** [<|] is equivalent to F#'s [<|].
     Note that [<|] is left associative!
     Use [@] for right associativity. *)
-val ( <| ) (#a #b:Type): (a->b) -> a -> b
+val ( <| ) (#a : Type) (#p : a -> Type): ((x : a) -> p x) -> (x : a) -> p x
 let ( <| ) #_ #_ f x = f x
 
 (** [@] is equivalent to Haskell's [$].
     Note that [@] is right associative!
     Use [<|] for left associativity. *)
-val ( @ ) (#a #b:Type): (a->b) -> a -> b
+val ( @ ) (#a : Type) (#p : a -> Type): ((x : a) -> p x) -> (x : a) -> p x
 let ( @ ) #_ #_ f x = f x
 
 (** [>>] is equivalent to F#'s [>>]. *)

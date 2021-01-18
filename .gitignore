@@ -8,3 +8,4 @@ bin
 fsharp/Extracted
 fstar/*.hints
 fstar/*.checked
+tests/consistency/fsharp

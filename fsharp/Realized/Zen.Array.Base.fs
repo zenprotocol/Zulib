@@ -35,3 +35,9 @@ let ofList (ls: Prims.list<'A>): Cost.t<indexed<'A, Prims.unit>, Prims.unit> =
     ) |> Cost.C
 
 let ofList_get (_: Prims.list<'A>) (_:Prims.nat): unit = () 
+
+let fold  (f : 's -> 'a -> 's) (x : 's) (arr : 'a[]) : Cost.t<'s , Prims.unit> = 
+    Cost.ret <| Array.fold f x arr
+
+let foldT (_:Prims.nat) (f : 's -> 'a -> Cost.t<'s , Prims.unit>) (x : 's) (arr : 'a[]) : Cost.t<'s , Prims.unit> =
+    Array.fold (f << Cost.__force) (Cost.ret x) arr

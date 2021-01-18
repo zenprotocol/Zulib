@@ -1,4 +1,6 @@
 #I "../.paket/load/net47"
+#r "../packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
+#r "../packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
 #r "../bin/Zulib.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
@@ -14,10 +16,10 @@ module Checked = Operators.Checked
 type Generators =
     static member I64() =
         Arb.from<DoNotSize<int64>>
-        |> Arb.convert DoNotSize.Unwrap DoNotSize
+        //|> Arb.convert DoNotSize.Unwrap DoNotSize
     static member Z32() =
         Arb.from<DoNotSize<uint32>>
-        |> Arb.convert DoNotSize.Unwrap DoNotSize
+        //|> Arb.convert DoNotSize.Unwrap DoNotSize
 Arb.register<Generators>()
 
 type U32Properties =
@@ -34,7 +36,7 @@ type U32Properties =
     static member ``zAdd equivalent to fsAdd`` (x: Z32.t) (y: Z32.t) =
         begin
         try
-            let _ = Checked.(+) x y
+            Checked.(+) x y |> ignore
             true
         with
             | _ -> false
@@ -43,7 +45,7 @@ type U32Properties =
     static member ``zSub equivalent to fsSub`` (x: Z32.t) (y: Z32.t) =
         begin
         try
-            let _ = Checked.(-) x y
+            Checked.(-) x y |> ignore
             true
         with
             | _ -> false
@@ -52,7 +54,7 @@ type U32Properties =
     static member ``zMul equivalent to fsMul`` (x: Z32.t) (y: Z32.t) =
         begin
         try
-            let _ = Checked.(*) x y
+            Checked.(*) x y |> ignore
             true
         with
             | _ -> false
@@ -107,5 +109,10 @@ type U32Properties =
         Z32.sub_mod x y = x - y
     static member ``zmul_mod equivalent to fsmul_mod`` (x: Z32.t) (y: Z32.t) =
         Z32.mul_mod x y = x * y
+    
+    static member ``of_string to_string isomorphism`` (x : Z32.t) : bool =
+        match Z32.of_string (Z32.to_string x) with
+        | Some y -> x = y
+        | None -> false
 
-Check.QuickAll<U32Properties>()
+Check.QuickThrowOnFailureAll<U32Properties>()

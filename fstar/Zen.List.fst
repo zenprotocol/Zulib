@@ -209,6 +209,27 @@ let sumByT #_ #n f ls =
     mapT f ls `bind_dep` (fun values ->
     sum values <: cost int (length ls * 4 + 4))
 
+val product: ls:list int -> int `cost` (length ls * 4 + 4)
+let product = fold (fun x y -> x * y) 1
+
+val productBy(#a:Type):
+    (a -> int)
+    -> ls: list a
+    -> int `cost` (length ls * 6 + 6)
+let productBy #_ f ls =
+    force_map_length f ls;
+    map f ls `bind_dep` (fun values ->
+    product values <: cost int (length ls * 4 + 4))
+
+val productByT(#a:Type)(#n:nat):
+    (a -> int `cost` n)
+    -> ls: list a
+    -> int `cost` (length ls * (n + 6) + 6)
+let productByT #_ #n f ls =
+    force_mapT_length f ls;
+    mapT f ls `bind_dep` (fun values ->
+    product values <: cost int (length ls * 4 + 4))
+
 val or_: ls : list bool -> bool `cost` (length ls * 4 + 4)
 let or_ = fold ( || ) true
 
@@ -267,3 +288,105 @@ let rec tryNth #_ ls n =
     if n < length ls
     then nth ls n >>= OT.some |> inc 5
     else OT.incNone (2 * n + 7)
+
+val take (#a : Type) :
+  (k : nat)
+  -> (ls : list a)
+  -> list a `cost` ((k `min` length ls) * 18 + 18)
+let rec take #_ k ls =
+    match ls with
+    | [] ->
+        [] |> incRet 18
+    | (hd :: tl) ->
+        if k > 0 then
+            begin
+            let! r = take (k - 1) tl
+            in hd :: r |> incRet 18
+            end
+        else
+            [] |> incRet 18
+
+val drop (#a : Type) :
+  (k : nat)
+  -> (ls : list a)
+  -> list a `cost` ((k `min` length ls) * 12 + 12)
+let rec drop #_ k ls =
+    Zen.Cost.inc 12
+        begin match ls with
+        | [] ->
+            ls |> ret
+        | hd :: tl ->
+            if k > 0 then
+                drop (k - 1) tl
+            else
+                ls |> ret
+        end
+
+val zip (#a #b : Type) :
+    (xs : list a)
+    -> (ys : list b {length ys = length xs})
+    -> list (a ** b) `cost` (18 * length xs + 18)
+let rec zip #_ #_ xs ys =
+    match (xs , ys) with
+    | ([] , []) ->
+        [] |> incRet (18 * length xs + 18)
+    | (x :: xs', y :: ys') ->
+        let! r = zip xs' ys' in
+        (x, y) :: r |> incRet 18
+
+val unzip (#a #b : Type) :
+    (ls : list (a ** b))
+    -> (list a ** list b) `cost` (15 * length ls + 15)
+let rec unzip #_ #_ ls =
+    match ls with
+    | [] ->
+        ([], []) |> incRet (15 * length ls + 15)
+    | (x, y) :: ls' ->
+        let! xs, ys = unzip ls' in
+        (x :: xs, y :: ys) |> incRet 15
+
+val zipWithT (#a #b #c : Type) (#n: nat) :
+  (a -> b -> c `cost` n)
+  -> (xs : list a)
+  -> (ys : list b {length ys = length xs})
+  -> list c `cost` ((21 + n) * length xs + 21)
+let rec zipWithT #_ #_ #_ #n f xs ys =
+    match (xs , ys) with
+    | ([] , []) ->
+        [] |> incRet ((21 + n) * length xs + 21)
+    | (x :: xs' , y :: ys') ->
+        let! r = zipWithT f xs' ys' in
+        let! fxy = f x y in
+        fxy :: r |> incRet 21
+
+val filterT (#a : Type) (#n : nat) :
+    (a -> bool `cost` n)
+    -> (ls : list a)
+    -> list a `cost` (length ls * (n + 17) + 17)
+let rec filterT #_ #n p ls =
+    match ls with
+    | [] ->
+        [] |> incRet (length ls * (n + 17) + 17)
+    | hd :: tl ->
+        let! r = filterT p tl in
+        let! b = p hd in
+        (if b then hd :: r else r)
+        |> incRet 17
+
+val chooseT (#a #b : Type) (#n : nat) :
+    (a -> option b `cost` n)
+    -> (ls : list a)
+    -> list b `cost` ((n + 16) * length ls + 16)
+let rec chooseT #a #b #n (f : a -> option b `cost` n) (ls : list a) = // 16
+    match ls with
+    | [] ->
+        incRet ((n + 16) * length ls + 16) []
+    | hd :: tl ->
+        let! r = chooseT f tl in // ((n + 16) * (length ls - 1) + 16)
+        let! res = f hd in // n
+        begin match res with
+        | None ->
+            incRet 16 r
+        | Some x ->
+            incRet 16 (x :: r)
+        end

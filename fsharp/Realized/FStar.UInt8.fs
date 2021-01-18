@@ -1,8 +1,9 @@
 module FStar.UInt8
-//open Prims
 
 module Checked = FSharp.Core.Operators.Checked
 open FStar.Pervasives.Native
+
+let private cvt : string -> uint8 = uint8
 
 let fits (x: Prims.int): bool = 0L <= x && x <= 0xFFL
 let size (x: Prims.int): unit = ()
@@ -62,7 +63,14 @@ let op_Greater_Equals_Hat = gte
 let op_Less_Hat = lt
 let op_Less_Equals_Hat = lte
 
-let of_string s = int s
-let to_string s = s.ToString()
+let of_string (s : Prims.string) : t option =
+    try
+        Some (cvt (Prims.fstarStringConvert s))
+    with _ ->
+        None
+
+let to_string (x : t) : Prims.string =
+    Prims.to_string (v x)
+
 //let to_string_hex s = Printf.sprintf "%02x" s
 //let to_int s = s

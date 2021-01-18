@@ -22,6 +22,10 @@ let getFiles pattern =
 
 let zulibFiles = getFiles "fstar/*.fst" ++ getFiles "fstar/*.fsti"
 
+let consistencyFiles = getFiles "tests/consistency/*.fst"
+
+let consistencyExtractedDir = "tests/consistency/fsharp"
+
 let getHints() = getFiles "fstar/*.hints" ++ getFiles "fstar/*.checked"
 
 let zipHints(): unit =
@@ -33,9 +37,10 @@ let unzipHints(): unit =
 let clearHints(): unit =
     Fake.FileHelper.DeleteFiles <| getHints()
 
-let runFStar args files =
+let join =
+  Array.reduce (fun a b -> a + " " + b)
 
-  let join = Array.reduce (fun a b -> a + " " + b)
+let runFStar args files =
 
   let primsFile = "\"" + FileSystemHelper.currentDirectory + "/fstar/prims.fst" + "\""
   let files = Array.map (fun f -> "\"" + f + "\"") files
@@ -52,6 +57,7 @@ let runFStar args files =
     "--no_default_includes";
     "--include";"fstar/"; |]
   //printfn "%s" (join (fstar ++ args ++ zulibFiles));
+
   ProcessHelper.Shell.AsyncExec (executable, join (fstar ++ args ++ files))
 
 Target "Clean" (fun _ ->
@@ -120,6 +126,9 @@ Target "Extract" (fun _ ->
        "--extract_module";"Zen.Types.Data";
        "--extract_module";"Zen.Types.Main";
        "--codegen-lib";"Zen.Types";
+       "--extract_module";"Zen.PublicKey";
+       "--extract_module";"Zen.Sha3.Extracted";
+       "--codegen-lib";"Zen.Sha3"
        "--extract_module";"Zen.Hash.Base";
        "--codegen-lib";"Zen.Hash"
        "--extract_module";"Zen.Data";
@@ -169,6 +178,9 @@ Target "Build" (fun _ ->
       "fsharp/Extracted/Zen.Types.Main.fs";
       "fsharp/Realized/Zen.Wallet.fs";
       //"fsharp/Extracted/Zen.Wallet.fs";
+      "fsharp/Extracted/Zen.PublicKey.fs";
+      "fsharp/Realized/Zen.Sha3.Realized.fs";
+      "fsharp/Extracted/Zen.Sha3.Extracted.fs";
       "fsharp/Realized/Zen.TxSkeleton.fs";
       "fsharp/Extracted/Zen.Data.fs";
       "fsharp/Extracted/Zen.ContractReturn.fs";
@@ -214,6 +226,104 @@ Target "Build" (fun _ ->
     failwith "building Zulib failed"
     )
 
+Target "Consistency" (fun _ ->
+
+  // Verification
+  let verification_args =
+    [| "--use_hints"
+       "--use_hint_hashes"
+       "--record_hints"
+       "--cache_checked_modules"
+    |]
+
+  let exitCodes =
+    consistencyFiles
+    |> Array.map (fun file -> runFStar verification_args [|file|])
+    |> Async.Parallel
+    |> Async.RunSynchronously
+  
+  if not (Array.forall (fun exitCode -> exitCode = 0) exitCodes)
+    then failwith "Verifying consistency failed"
+
+  // Extraction
+  let extraction_files_args =
+    consistencyFiles
+    |> Array.collect (fun filename -> [| "--extract_module"; System.IO.Path.GetFileNameWithoutExtension filename |])
+  
+  let extraction_args =
+    [|
+      "--lax";
+      "--codegen"; "FSharp";
+      "--odir"; consistencyExtractedDir
+    |] ++ extraction_files_args
+  
+  let exitCode =
+    runFStar extraction_args (zulibFiles ++ consistencyFiles)
+    |> Async.RunSynchronously
+
+  if exitCode <> 0 then
+    failwith "extracting consistency failed"
+
+  // Compile
+
+  let platform =
+    let platform = System.Environment.OSVersion.Platform
+    if (platform = System.PlatformID.Unix
+        && Directory.Exists "/Applications"
+        && Directory.Exists "/System"
+        && Directory.Exists "/Users"
+        && Directory.Exists "/Volumes")
+            then System.PlatformID.MacOSX
+    else platform
+
+  let frameworkPath =
+    match platform with
+    | System.PlatformID.Unix -> "/usr/lib/mono/4.7-api/"
+    | System.PlatformID.MacOSX -> "/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.7-api/"
+    | _ -> @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\"
+
+  let expandPath : string -> string =
+    fun s -> System.IO.Path.Combine(frameworkPath, s)
+  
+  let checkerArgs filename =
+    [| "fsc.exe"
+       "--noframework"
+       "--mlcompatibility"
+       "--nowarn:62"
+       "-r"; expandPath "mscorlib.dll"
+       "-r"; expandPath "System.Core.dll"
+       "-r"; expandPath "System.dll"
+       "-r"; expandPath "System.Numerics.dll"
+       "-r"; "bin/Zulib.dll"
+       "-r"; "packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
+       "-r"; "packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
+       "-r"; "packages/FSharpx.Collections/lib/net40/FSharpx.Collections.dll"
+       "-r"; "packages/FsBech32/lib/net47/FsBech32.dll" 
+       "-a"; filename
+       "-o"; Path.ChangeExtension(filename , ".dll")
+    |]
+  
+  let tests =
+    getFiles (sprintf "%s/*.fs" consistencyExtractedDir)
+  
+  for test in tests do
+    checkerArgs test
+    |> FSharpChecker.Create().Compile
+    |> Async.RunSynchronously
+    |> fun (errMsgs , status) ->
+        if status <> 0 then
+          for errMsg in errMsgs do
+            eprintfn "%A" errMsg
+          failwithf "test %s created invalid fsharp" test
+
+  // Clean
+  //CleanDir consistencyExtractedDir
+)
+
+Target "ConsistencyClean" (fun _ ->
+  CleanDir consistencyExtractedDir
+)
+
 Target "Test" (fun _ ->
     let fsharpi (fsx: string) =
         if EnvironmentHelper.isWindows
@@ -234,7 +344,6 @@ Target "Default" ( fun _ ->
     Run "Verify"
     Run "Extract"
     Run "Build"
-    Run "Test"
     )
 
 (*

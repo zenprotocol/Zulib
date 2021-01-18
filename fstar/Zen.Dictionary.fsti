@@ -135,3 +135,20 @@ val empty_unique: a:Type
 val empty_ContainsKey: a:Type
     -> Lemma ( forall (key:string).
                force (containsKey key (empty #a)) == false )
+
+val mapT (#a #b : Type) (#n : nat) :
+    (string -> a -> b `cost` n)
+    -> (d : dictionary a)
+    -> dictionary b `cost` (size d * (n + 2) + 2)
+
+val force_mapT_length(#a #b:Type)(#n:nat):
+  (f : (string -> a -> b `cost` n))
+  -> (d : dictionary a)
+  -> Lemma ( let result = f `mapT` d in
+             size (force result) == size d )
+
+val foldT (#a #s : Type) (#n : nat) :
+    (s -> string -> a -> s `cost` n)
+    -> s
+    -> d:dictionary a
+    -> s `cost` (size d * (n + 4) + 4)

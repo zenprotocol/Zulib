@@ -1,4 +1,6 @@
 #I "../.paket/load/net47"
+#r "../packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
+#r "../packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
 #r "../bin/Zulib.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
@@ -15,11 +17,16 @@ type ArrayProperties =
     static member ``zLength equivalent to fsLength`` (zs: int[]) =
         ZAB.length zs = int64 (zs.Length)
 
-    static member ``zItem equivalent to fsItem`` (i: int) (zs: int[]) =
-        (0 < i && i < zs.Length) ==>
-        lazy ( let zItem = ZAI.item (ZAB.length zs) (int64 i) zs
-               let fsItem = zs.[i]
-               zItem = fsItem )
+    static member ``zItem equivalent to fsItem`` (i': FsCheck.PositiveInt) (zs: int[]) =
+        lazy (
+            if Array.isEmpty zs then
+                true
+            else
+                let i = i'.Get % Array.length zs
+                let zItem = ZAI.item (ZAB.length zs) (int64 i) zs
+                let fsItem = zs.[i]
+                zItem = fsItem
+        )
 
     static member ``zInit equivalent to fsInit`` (zs: int[]) =
         let n = ZAB.length zs
@@ -28,17 +35,27 @@ type ArrayProperties =
                let fsInit = Array.init (int n) (fun i -> zs.[i])
                C.__force zInit = fsInit )
 
-    static member ``zGet equivalent to fsItem`` (i: int) (zs: int[]) =
-        (0 < i && i < zs.Length) ==>
-        lazy ( let zGet = ZAB.get (ZAB.length zs) zs (int64 i)
-               let fsItem = zs.[i]
-               zGet = fsItem )
+    static member ``zGet equivalent to fsItem`` (i': FsCheck.PositiveInt) (zs: int[]) =
+        lazy (
+            if Array.isEmpty zs then
+                true
+            else
+                let i = i'.Get % Array.length zs
+                let zGet = ZAB.get (ZAB.length zs) zs (int64 i)
+                let fsItem = zs.[i]
+                zGet = fsItem
+        )
 
-    static member ``zAt equivalent to fsItem`` (i: int) (zs: int[]) =
-        (0 < i && i < zs.Length) ==>
-        lazy ( let zAt = ZAB.get (ZAB.length zs) zs (int64 i)
-               let fsItem = zs.[i]
-               zAt = fsItem )
+    static member ``zAt equivalent to fsItem`` (i': FsCheck.PositiveInt) (zs: int[]) =
+        lazy (
+            if Array.isEmpty zs then
+                true
+            else
+                let i = i'.Get % Array.length zs
+                let zAt = ZAB.get (ZAB.length zs) zs (int64 i)
+                let fsItem = zs.[i]
+                zAt = fsItem
+        )
 
     static member ``zCreate equivalent to fsCreate`` (n: int) (x: int) =
         0 < n ==> lazy ( let zCreate = ZAI.create (int64 n) x
@@ -82,4 +99,4 @@ type ArrayProperties =
         then C.__force zChunks = Array.sub fsChunks 0 (fsChunks.Length - 1)
         else C.__force zChunks = fsChunks
 
-Check.QuickAll<ArrayProperties>()
+Check.QuickThrowOnFailureAll<ArrayProperties>()

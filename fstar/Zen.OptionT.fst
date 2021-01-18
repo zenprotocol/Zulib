@@ -8,6 +8,14 @@ module Opt = Zen.Option
 type optionT (a:Type) (n:nat) = option a `Cost.t` n
 type t : Type -> nat -> Type = optionT
 
+val maybeT (#a #b : Type) (#n : nat) : b -> (a -> b `Cost.t` n) -> option a -> b `Cost.t` (n + 5)
+let maybeT #_ #_ #n y f opt =
+  match opt with
+  | None ->
+      y |> Cost.incRet (n + 5)
+  | Some x ->
+      f x |> Cost.inc 5
+
 val some(#a:Type): a -> a `optionT` 0
 let some #_ = Some >> Cost.ret
 
@@ -128,3 +136,25 @@ let (>=>) #_ #_ #_ #_ #_ f g =
 val (<=<) (#a #b #c:Type)(#m #n:nat):
   (b -> c `optionT` n) -> (a -> b `optionT` m) -> (a -> c `optionT` (m+n))
 let (<=<) #_ #_ #_ #_ #_ g f = f >=> g
+
+val tryMapT (#a #b : Type) (#n : nat) :
+    (a -> b `optionT` n)
+    -> ls:list a
+    -> (ls':list b{length ls' == length ls}) `optionT` (length ls * (n + 20) + 20)
+let rec tryMapT #a #b #n f ls =
+  Cost.inc 20
+    begin match ls with
+    | hd :: tl ->
+        let! hd' = f hd in
+        let! tl' = tryMapT f tl in
+        begin match hd', tl' with
+        | Some hd', Some tl' ->
+            let ls': ls': list b {length ls' == length ls} = hd' :: tl' in some ls'
+        | _ ->
+            none
+        end
+    | [] ->
+        []
+        |> incSome (length ls * (n + 20))
+    end
+

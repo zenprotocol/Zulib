@@ -9,6 +9,16 @@ module OptT = Zen.OptionT
 type resultT (a:Type) (n:nat) = result a `Cost.t` n
 type t : Type -> nat -> Type = resultT
 
+val handleT (#a #b : Type) (#m #n : nat) :
+  (a -> b `Cost.t` m)
+  -> (string -> b `Cost.t` n)
+  -> (res : result a)
+  -> b `Cost.t` (match res with | OK _ -> m + 5 | ERR _ -> n + 5)
+let handleT #_ #_ #_ #_ f g res =
+  match res with
+  | OK x -> f x |> Cost.inc 5
+  | ERR msg -> g msg |> Cost.inc 5
+
 val ok(#a:Type): a -> a `resultT` 0
 let ok #_ = OK >> Cost.ret
 
@@ -21,14 +31,8 @@ let liftRes #_ = Cost.ret
 val liftCost(#a:Type)(#n:nat): a `Cost.t` n -> a `resultT` n
 let liftCost #_ #_ = Cost.map OK
 
-val fail: exn -> 'a `resultT` 0
-let fail #_ = Res.fail >> liftRes
-
 val failw: string -> 'a `resultT` 0
 let failw #_ = Res.failw >> liftRes
-
-val incFail(#a:Type): n:nat -> exn -> a `resultT` n
-let incFail #_ n = fail >> Cost.inc n
 
 val incFailw(#a:Type): n:nat -> string -> a `resultT` n
 let incFailw #_ n = failw >> Cost.inc n
@@ -41,9 +45,6 @@ let incRet = incOK
 
 val autoFailw(#a:Type)(#n:nat): string -> a `resultT` n
 let autoFailw #_ #_ = failw >> Cost.autoInc
-
-val autoFail(#a:Type)(#n:nat): exn -> a `resultT` n
-let autoFail #_ #_ = fail >> Cost.autoInc
 
 val autoOK(#a:Type)(#n:nat): a -> a `resultT` n
 let autoOK #_ #_ = ok >> Cost.autoInc
@@ -66,7 +67,6 @@ val bind(#a #b:Type)(#m #n:nat):
 let bind #_ #_ #_ #n mx f =
   mx `Cost.bind` (function
   | OK x -> f x
-  | EX e -> autoFail e
   | ERR msg -> autoFailw msg)
 
 val (>>=) (#a #b:Type)(#m #n:nat):
@@ -150,3 +150,26 @@ let (>=>) #_ #_ #_ #_ #_ f g =
 val (<=<) (#a #b #c:Type)(#m #n:nat):
   (b -> c `resultT` n) -> (a -> b `resultT` m) -> (a -> c `resultT` (m+n))
 let (<=<) #_ #_ #_ #_ #_ g f = f >=> g
+
+val tryMapT (#a #b : Type) (#n : nat) :
+    (a -> b `resultT` n)
+    -> ls:list a
+    -> (ls':list b{length ls' == length ls}) `resultT` (length ls * (n + 20) + 20)
+let rec tryMapT #a #b #n f ls =
+  Cost.inc 20
+    begin match ls with
+    | hd :: tl ->
+        let! hd' = f hd in
+        let! tl' = tryMapT f tl in
+        begin match hd', tl' with
+        | OK hd' , OK tl' ->
+            let ls': (ls': list b {length ls' == length ls}) = hd' :: tl' in ok ls'
+        | OK _ , ERR msg ->
+            failw msg
+        | ERR msg , _ ->
+            failw msg
+        end
+    | [] ->
+        []
+        |> incOK (length ls * (n + 20))
+    end

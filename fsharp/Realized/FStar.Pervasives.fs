@@ -138,7 +138,6 @@ module Native =
 
 type 'Aa result =
 | OK of 'Aa
-| EX of Prims.exn
 | ERR of Prims.string
 
 
@@ -156,22 +155,6 @@ let __proj__OK__item__v = (fun ( projectee  :  'Aa result ) -> (match (projectee
 | OK (v) -> begin
 v
 end))
-
-
-let uu___is_EX = (fun ( projectee  :  'Aa result ) -> (match (projectee) with
-| EX (e) -> begin
-true
-end
-| uu____594 -> begin
-false
-end))
-
-
-let __proj__EX__item__e = (fun ( projectee  :  'Aa result ) -> (match (projectee) with
-| EX (e) -> begin
-e
-end))
-
 
 let uu___is_ERR = (fun ( projectee  :  'Aa result ) -> (match (projectee) with
 | ERR (msg) -> begin

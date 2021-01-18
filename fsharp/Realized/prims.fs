@@ -7,10 +7,10 @@ module Obj = FSharp.Compatibility.OCaml.Obj
 module P = FSharp.Compatibility.OCaml.Pervasives
 
 // Converts a string to a byte array
-let private fsharpStringConvert (s: Core.string): Core.byte Core.array =
+let fsharpStringConvert (s: Core.string): Core.byte Core.array =
     s.ToCharArray() |> Collections.Array.map Check.byte
 // Converts a byte array to a string
-let private fstarStringConvert: Core.byte Core.array -> Core.string =
+let fstarStringConvert: Core.byte Core.array -> Core.string =
     Collections.Array.map Check.char >> System.String
 // Ceiling division
 let private cdiv (x: Core.int64) (y: Core.int64): Core.int64 =

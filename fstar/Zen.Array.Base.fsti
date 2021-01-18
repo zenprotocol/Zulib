@@ -30,3 +30,15 @@ val ofList_get(#a:Type):
     -> i:nat{i < Prims.length ls}
     -> Lemma (let arr = ofList ls in
               get (force arr) i == force (Zen.List.nth ls i))
+
+val fold(#a #s:Type):
+    (s -> a -> s)
+    -> s
+    -> arr:t a
+    -> s `cost` (4 * length arr + 4)
+
+val foldT(#a #s:Type)(#n:nat):
+    (s -> a -> s `cost` n)
+    -> s
+    -> arr:t a
+    -> s `cost` (length arr * (n + 4) + 4)

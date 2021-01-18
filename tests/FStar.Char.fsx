@@ -1,4 +1,6 @@
 #I "../.paket/load/net47"
+#r "../packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
+#r "../packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
 #r "../bin/Zulib.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
@@ -14,7 +16,6 @@ type CharProperties =
 
     static member ``zLowercase equivalent to fsLowercase`` (c: char) =
         let charV = System.Convert.ToInt32 c
-        (0 <= charV && charV <= 255) ==>
         lazy ( let zLowercase = Char.lowercase (byte charV)
                                 |> C.__force
                                 |> char
@@ -23,11 +24,10 @@ type CharProperties =
 
     static member ``zUppercase equivalent to fsUppercase`` (c: char) =
         let charV = System.Convert.ToInt32 c
-        (0 <= charV && charV <= 255) ==>
         lazy ( let zUppercase = Char.uppercase (byte charV)
                                 |> C.__force
                                 |> char
                let fsUppercase = System.Char.ToUpper c
                zUppercase = fsUppercase )
 
-Check.QuickAll<CharProperties>()
+Check.QuickThrowOnFailureAll<CharProperties>()

@@ -9,6 +9,8 @@ open Zen.Wallet
 module Cost = Zen.Cost.Realized
 module U64 = FStar.UInt64
 module Native = FStar.Pervasives.Native
+module Sha3 = Zen.Sha3.Realized
+module Sha3E = Zen.Sha3.Extracted
 
 let emptyTxSkeleton : txSkeleton =
     { inputs = 0UL, Map.empty
@@ -25,7 +27,11 @@ let getAvailableTokens (asset : asset) (txSkeleton : txSkeleton) : Cost.t<uint64
               | None -> 0UL
               | Some(amount, _) -> amount
 
-          unlockedAmount - lockedAmount)
+          if unlockedAmount > lockedAmount then
+            unlockedAmount - lockedAmount
+          else
+            0UL
+          )
     |> Cost.C
 
 let insertInput (input : input)
@@ -109,6 +115,24 @@ let lockToPubKey (asset : asset) (amount:uint64) (pkHash : hash) (txSkeleton : t
           insertOutput output txSkeleton)
     |> Cost.C
 
+let lockToPublicKey (asset : asset) (amount:uint64) (pk : publicKey) (txSkeleton : txSkeleton) : Cost.t<txSkeleton, unit> =
+    lazy (
+        let cpk =
+            pk
+            |> Zen.PublicKey.compress
+            |> Cost.__force
+        
+        let pkHash =
+            Sha3.empty
+            |> Sha3E.updateCPK cpk
+            |> Cost.__force
+            |> Sha3.finalize
+            |> Cost.__force
+        
+        lockToPubKey asset amount pkHash txSkeleton
+        |> Cost.__force
+    ) |> Cost.C
+
 let lockToAddress (asset : asset) (amount:uint64) (address : lock) (txSkeleton : txSkeleton) : Cost.t<txSkeleton, unit> =
     lazy (
           let output =
@@ -134,6 +158,27 @@ let mint (amount : U64.t) (asset : asset)
           let input = Mint mintSpend
 
           addInput input txSkeleton |> Cost.__force)
+    |> Cost.C
+
+let safeMint (amount : U64.t) (asset : asset)
+    (txSkeleton : txSkeleton) : Cost.t<txSkeleton option, unit> =
+    lazy (
+
+        if amount = 0UL then
+
+            Native.None
+        
+        else
+        
+            let mintSpend = { asset = asset; amount = amount }
+
+            let input = Mint mintSpend
+
+            addInput input txSkeleton
+            |> Cost.__force
+            |> Native.Some
+        
+        )
     |> Cost.C
 
 let destroy (amount : U64.t) (asset : asset)

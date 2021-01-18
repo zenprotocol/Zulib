@@ -1,4 +1,6 @@
 #I "../.paket/load/net47"
+#r "../packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
+#r "../packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
 #r "../bin/Zulib.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
@@ -14,7 +16,7 @@ module Checked = Operators.Checked
 type Generators =
     static member I64() =
         Arb.from<DoNotSize<int64>>
-        |> Arb.convert DoNotSize.Unwrap DoNotSize
+        //|> Arb.convert DoNotSize.Unwrap DoNotSize
 Arb.register<Generators>()
 
 type U8Properties =
@@ -32,7 +34,7 @@ type U8Properties =
     static member ``zAdd equivalent to fsAdd`` (x: Z8.t) (y: Z8.t) =
         begin
         try
-            let _ = Checked.(+) x y
+            Checked.(+) x y |> ignore
             true
         with
             | _ -> false
@@ -41,16 +43,18 @@ type U8Properties =
     static member ``zSub equivalent to fsSub`` (x: Z8.t) (y: Z8.t) =
         begin
         try
-            let _ = Checked.(-) x y
+            Checked.(-) x y |> ignore
             true
         with
             | _ -> false
         end ==> lazy (Z8.op_Subtraction_Hat x y = x - y)
 
     static member ``zMul equivalent to fsMul`` (x: Z8.t) (y: Z8.t) =
+        let x = x / 10uy
+        let y = y / 10uy
         begin
         try
-            let _ = Checked.(*) x y
+            Checked.(*) x y |> ignore
             true
         with
             | _ -> false
@@ -106,4 +110,10 @@ type U8Properties =
     static member ``zmul_mod equivalent to fsmul_mod`` (x: Z8.t) (y: Z8.t) =
         Z8.mul_mod x y = x * y
 
-Check.QuickAll<U8Properties>()
+
+    static member ``of_string to_string isomorphism`` (x : Z8.t) : bool =
+        match Z8.of_string (Z8.to_string x) with
+        | Some y -> x = y
+        | None -> false
+
+Check.QuickThrowOnFailureAll<U8Properties>()

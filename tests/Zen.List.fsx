@@ -1,4 +1,6 @@
 #I "../.paket/load/net47"
+#r "../packages/BouncyCastle/lib/BouncyCastle.Crypto.dll"
+#r "../packages/FSharp.Compatibility.OCaml/lib/net45/FSharp.Compatibility.OCaml.dll"
 #r "../bin/Zulib.dll"
 #load "FsCheck.fsx"
 #load "FSharpx.Collections.fsx"
@@ -8,6 +10,8 @@ open FsCheck
 module C = Zen.Cost.Realized
 module P = Prims
 module ZL = Zen.List
+module FSL = Microsoft.FSharp.Collections.List
+module FSL' = FSharpx.Collections.List
 
 let rec fsListToZList: list<'a> -> ZL.t<'a> = function
     | [] -> P.Nil
@@ -103,20 +107,244 @@ type ListProperties =
                let fsMax = List.max (zListToFSList zs)
                C.__force zMax = fsMax )
 
-    static member ``zNth equivalent to fsNth`` (n: int) (zs: ZL.t<int>) =
-        (0 <= n && int64 n < P.length zs) ==>
-        lazy ( let zNth = ZL.nth zs (int64 n)
-               let fsNth = List.nth (zListToFSList zs) n
-               C.__force zNth = fsNth )
+    static member ``zNth equivalent to fsNth`` (n': FsCheck.NonNegativeInt) (zs: ZL.t<int>) =
+        lazy  (
+            let zslen = P.length zs
+            if zslen = 0L then
+                true
+            else
+                let n = int64 n'.Get % zslen
+                let zNth = ZL.nth zs n
+                let fsNth = List.nth (zListToFSList zs) (int n)
+                C.__force zNth = fsNth
+        )
 
-    static member ``zTryNth equivalent to fsTryNth`` (n: int) (zs: ZL.t<int>) =
-        0 <= n ==>
-        lazy ( let zTryNth = ZL.tryNth zs (int64 n)
-               let fsTryNth = zListToFSList zs
-                              |> FSharpx.Collections.Seq.tryNth n
-               match (C.__force zTryNth, fsTryNth) with
-               | FStar.Pervasives.Native.Some x, Some y -> x = y
-               | FStar.Pervasives.Native.None, None -> true
-               | _ -> false )
+    static member ``zTryNth equivalent to fsTryNth`` (n': FsCheck.NonNegativeInt) (zs: ZL.t<int>) =
+        lazy (
+            let n = n'.Get
+            let zTryNth = ZL.tryNth zs (int64 n)
+            let fsTryNth = zListToFSList zs |> FSharpx.Collections.Seq.tryNth n
+            match (C.__force zTryNth, fsTryNth) with
+            | FStar.Pervasives.Native.Some x, Some y -> x = y
+            | FStar.Pervasives.Native.None, None -> true
+            | _ -> false
+        )
 
-Check.QuickAll<ListProperties>()
+    static member ``take length`` (npos : FsCheck.NonNegativeInt) (xs: ZL.t<int>) =
+        lazy begin
+            
+            let k =
+                if ZL.isNull () xs then
+                    0L
+                else
+                    int64 npos.Get % P.length xs
+            
+            let ys =
+                ZL.take k xs
+                |> C.__force
+            
+            P.length ys = k
+        end
+    
+    static member ``drop length`` (npos : FsCheck.NonNegativeInt) (xs: ZL.t<int>) =
+        lazy begin
+            
+            let k =
+                if ZL.isNull () xs then
+                    0L
+                else
+                    int64 npos.Get % P.length xs
+            
+            let ys =
+                ZL.drop k xs
+                |> C.__force
+            
+            P.length ys = P.length xs - k
+        end
+
+    static member ``take and drop`` (npos : FsCheck.NonNegativeInt) (xs: ZL.t<int>) =
+        lazy begin
+            
+            let k =
+                if ZL.isNull () xs then
+                    0L
+                else
+                    int64 npos.Get % P.length xs
+            
+            let ys =
+                xs
+                |> ZL.take k
+                |> C.__force
+                |> ZL.drop k
+                |> C.__force
+            
+            ZL.isNull () ys
+        end
+
+    static member ``drop and take`` (npos : FsCheck.NonNegativeInt) (xs: ZL.t<int>) =
+        lazy begin
+            
+            let k =
+                if ZL.isNull () xs then
+                    0L
+                else
+                    int64 npos.Get % P.length xs
+            
+            let ys =
+                xs
+                |> ZL.drop k
+                |> C.__force
+            
+            let zs =
+                ys
+                |> ZL.take (P.length xs - k)
+                |> C.__force
+            
+            ys = zs
+        end
+
+    static member ``zTake equiv to fsTake`` (npos : FsCheck.NonNegativeInt  ) (xs: ZL.t<int>) =
+        lazy begin
+            
+            let k =
+                if ZL.isNull () xs then
+                    0L
+                else
+                    int64 npos.Get % P.length xs
+            
+            let ys =
+                xs
+                |> ZL.take k
+                |> C.__force
+              
+            zListToFSList ys = FSL.take (int k) (zListToFSList xs)
+        end
+
+    static member ``unzip zip isomorphism`` (xs' : ZL.t<int>) (ys': ZL.t<int>) =
+        lazy begin
+            
+            let n =
+                min (P.length xs') (P.length ys')
+            
+            let xs =
+                ZL.take n xs' |> C.__force
+
+            let ys =
+                ZL.take n ys' |> C.__force
+
+            let zs =
+                ZL.zip xs ys
+                |> C.__force
+            
+            let us =
+                ZL.unzip zs
+                |> C.__force
+
+            us = (xs , ys)
+        end
+
+    static member ``zip unzip isomorphism`` (ps : ZL.t<int * int>) =
+        lazy begin
+            
+            let (xs , ys) =
+                ZL.unzip ps
+                |> C.__force
+
+            let zs =
+                ZL.zip xs ys
+                |> C.__force
+            
+            zs = ps
+        end
+
+    static member ``zipWithT pair equiv zip`` (xs' : ZL.t<int>) (ys': ZL.t<int>) =
+        lazy begin
+            
+            let n =
+                min (P.length xs') (P.length ys')
+            
+            let xs =
+                ZL.take n xs' |> C.__force
+
+            let ys =
+                ZL.take n ys' |> C.__force
+
+            let zws =
+                ZL.zipWithT 0L (fun x y -> C.ret (x , y)) xs ys
+                |> C.__force
+
+            let zs =
+                ZL.zip xs ys
+                |> C.__force
+            
+            zws = zs
+        end
+
+    static member ``zipWithT addition`` (xs' : ZL.t<int>) (ys': ZL.t<int>) =
+        lazy begin
+            
+            let n =
+                min (P.length xs') (P.length ys')
+            
+            let xs =
+                ZL.take n xs' |> C.__force
+
+            let ys =
+                ZL.take n ys' |> C.__force
+
+            let zws =
+                ZL.zipWithT 0L (fun x y -> C.ret <| x + y) xs ys
+                |> C.__force
+            
+            let zs =
+                ZL.zip xs ys
+                |> C.__force
+                |> ZL.map (fun (x,y) -> x + y)
+                |> C.__force
+            
+            zws = zs
+        end
+
+    static member ``filterT map invariance`` (xs : ZL.t<int>) =
+        lazy begin
+            
+            let double x = x + x
+
+            let positive x = C.ret (x > 0)
+
+            let mapThenFilter =
+                xs
+                |> ZL.map double
+                |> C.__force
+                |> ZL.filterT 0L positive
+                |> C.__force
+
+            let filterThenMap =
+                xs
+                |> ZL.filterT 0L positive
+                |> C.__force
+                |> ZL.map double
+                |> C.__force
+
+            filterThenMap = mapThenFilter
+        end
+
+    static member ``filterT equiv fsFilter`` (xs : ZL.t<int>) =
+        lazy begin
+
+            let positive x = x > 0
+
+            let ys =
+                xs
+                |> ZL.filterT 0L (C.ret << positive)
+                |> C.__force
+            
+            zListToFSList ys = List.filter positive (zListToFSList xs)
+        end
+
+    static member ``zChooseT equiv fsChoose`` (xs : ZL.t<int>) (f : int -> option<int>) =
+        zListToFSList (C.__force <| ZL.chooseT 0L (C.ret << f) xs) = List.choose f (zListToFSList xs)
+        
+
+
+Check.QuickThrowOnFailureAll<ListProperties>()

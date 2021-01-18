@@ -17,6 +17,9 @@ let private filler len =
 
 let encodedBytesLength = 2 * ContractId.bytesLength
 
+[<Literal>]
+let private assetLength = 136
+
 let private getBytes value = BitConverter.GetBytes (value:uint32)
 
 let private getBigEndinanBytes =
@@ -32,26 +35,33 @@ let zenAsset : asset = 0ul, zeroHash, zeroHash
 let private decodeB16Bytes: Prims.string -> option< array<byte> > =
     System.Text.Encoding.ASCII.GetString >> Base16.decode
 
+let private getContractId value =
+    if Array.length value >= encodedBytesLength
+    then ContractId.parse value.[0..encodedBytesLength-1] |> Cost.__force
+    else Native.None
+
+let private getSubType value =
+    if Array.length value = encodedBytesLength
+    then Some zeroHash
+    else decodeB16Bytes value.[encodedBytesLength..]
+
 let parse (value : Prims.string) : Cost.t<asset Native.option, unit> =
     lazy (
-        if value = [| 0uy; 0uy |] then
-            Native.Some (0u, zeroHash, zeroHash)
-        else
-          let contractId = ContractId.parse value.[0..encodedBytesLength-1] |> Cost.__force
-          match contractId with
-          | Native.Some (ver, cHash) ->
-              let subType =
-                  if Array.length value = encodedBytesLength
-                  then Some zeroHash
-                  else decodeB16Bytes value.[encodedBytesLength..]
-
-              match subType with
-              | Some subType ->
-                  Native.Some (ver, cHash, subType)
-              | None ->
-                  Native.None
-          | Native.None ->
-              Native.None
+        if (Array.length value) % 2 = 0 && Array.length value <= assetLength then
+            if Array.forall ((=) 48uy) value then
+                Native.Some (0u, zeroHash, zeroHash)
+            else
+                match getContractId value with
+                | Native.Some (ver, cHash) ->
+                    match getSubType value with
+                    | Some subType ->
+                        Native.Some (ver, cHash, subType)
+                    | None ->
+                        Native.None       
+                | Native.None ->
+                    Native.None
+        else    
+            Native.None
     )
     |> Cost.C
 
