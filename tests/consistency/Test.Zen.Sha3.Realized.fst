@@ -59,6 +59,18 @@ let test_updateString : hash `cost` (6 * 4 + 6 * 4 + 20) =
   >>= Sha3.updateString "ABCD"
   >>= Sha3.finalize
 
+// let tets_updateSignature s =
+//   ret Sha3.empty
+//   >>= Sha3.updateSignature s
+//   >>= Sha3.updateSignature s
+//   >>= Sha3.finalize
+
+let test_updatePublicKey pk = 
+  ret Sha3.empty
+  >>= Sha3.updatePublicKey pk
+  >>= Sha3.updatePublicKey pk
+  >>= Sha3.finalize
+
 let test_updateAsset : hash `cost` (64 * 6 + 64 * 6 + 20) =
   ret Sha3.empty
   >>= Sha3.updateAsset Zen.Asset.zenAsset
