@@ -123,6 +123,14 @@ let updateString (s:S.t) (sha3:t): Cost.t<t, unit> =
     )
     |> Cost.C
 
+let updateSignature (sign:signature) (sha3:t): Cost.t<t, unit> =
+    lazy (
+        let sha3 = clone sha3
+        sha3.BlockUpdate(sign, 0, 64)
+        sha3
+    )
+    |> Cost.C
+
 let updatePublicKey (pk : publicKey) (sha3:t): Cost.t<t, unit> =
     let (parity, h) = compress pk
     lazy (
