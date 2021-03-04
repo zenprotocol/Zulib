@@ -10,6 +10,8 @@ module U8  = FStar.UInt8
 module U32 = FStar.UInt32
 module U64 = FStar.UInt64
 module S = FStar.String
+module PK = Zen.PublicKey
+module IArray = Zen.Array.Indexed
 
 type t = Sha3Digest
 
@@ -24,6 +26,15 @@ let private U32ToBytes (value:uint32) =
         Array.rev bytes
     else
         bytes
+
+let private compress (pk:publicKey): PK.cpk =
+    let aux (i : int64) =
+        Cost.ret (IArray.item 0L (31L - i) pk)
+    
+    let parity = (Array.item 32 pk % 2uy) + 2uy
+    let x = IArray.init_pure 0L 32L aux |> Cost.__force
+    (parity , x)
+
 
 let updateHash (h:hash) (sha3:t): Cost.t<t, unit> =
     lazy (
@@ -109,6 +120,23 @@ let updateString (s:S.t) (sha3:t): Cost.t<t, unit> =
         let sha3 = clone sha3
         sha3.BlockUpdate(s, 0, Array.length s)
         sha3
+    )
+    |> Cost.C
+
+let updateSignature (sign:signature) (sha3:t): Cost.t<t, unit> =
+    lazy (
+        let sha3 = clone sha3
+        sha3.BlockUpdate(sign, 0, 64)
+        sha3
+    )
+    |> Cost.C
+
+let updatePublicKey (pk : publicKey) (sha3:t): Cost.t<t, unit> =
+    let (parity, h) = compress pk
+    lazy (
+        empty
+        |> updateByte parity |> Cost.__force
+        |> updateHash h      |> Cost.__force
     )
     |> Cost.C
 

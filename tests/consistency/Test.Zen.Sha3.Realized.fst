@@ -59,6 +59,24 @@ let test_updateString : hash `cost` (6 * 4 + 6 * 4 + 20) =
   >>= Sha3.updateString "ABCD"
   >>= Sha3.finalize
 
+let tets_updateSignature s =
+  ret Sha3.empty
+  >>= Sha3.updateSignature s
+  >>= Sha3.updateSignature s
+  >>= Sha3.finalize
+
+let test_updatePublicKey : hash `cost` (120 + 64 * 6 + 64 * 6 + 20) = 
+  let! opk = Zen.Crypto.parsePublicKey "02b43a1cb4cb6472e1fcd71b237eb9c1378335cd200dd07536594348d9e450967e" in
+  match opk  with
+  | Some pk ->
+      ret Sha3.empty
+      >>= Sha3.updatePublicKey pk
+      >>= Sha3.updatePublicKey pk
+      >>= Sha3.finalize
+  | None ->
+      incRet (64 * 6 + 64 * 6) Sha3.empty
+      >>= Sha3.finalize
+
 let test_updateAsset : hash `cost` (64 * 6 + 64 * 6 + 20) =
   ret Sha3.empty
   >>= Sha3.updateAsset Zen.Asset.zenAsset

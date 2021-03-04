@@ -50,12 +50,12 @@ val updateHash:
   t `cost` (32 * 6)
 
 val updateSignature:
-  hash ->
+  signature ->
   t ->
   t `cost` (64 * 6)
 
 val updatePublicKey:
-  hash ->
+  publicKey ->
   t ->
   t `cost` (64 * 6)
 
