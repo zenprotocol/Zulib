@@ -1,5 +1,16 @@
 # Changelog
 
+
+### [0.3.43](https://github.com/zenprotocol/Zulib/compare/v0.3.42...v0.3.43) (2021-03-04)
+
+
+### Bug Fixes
+
+* realized Sha3.Realized.updatePublicKey ([6d18f24](https://github.com/zenprotocol/Zulib/commit/6d18f24f34dcd7990372728a28a1d6642fc5a0db))
+* Sha3.updateSignature ([22ecc5b](https://github.com/zenprotocol/Zulib/commit/22ecc5b527a2a90dd7f316d7473993b04466c978))
+
+# Changelog
+
 ### Features
 
 * a finite string of 0 (up to 136) is always parse as the Zen Asset ([b84e44d](https://github.com/zenprotocol/Zulib/commit/b84e44dbfc8d9c8f1669c613b161470d1c981371))
@@ -41,5 +52,3 @@
 * numeric to_string and of_string ([1b1ece6](https://github.com/zenprotocol/Zulib/commit/1b1ece6cbd435251f40c5f869c44a0a653043fb4))
 * removed Test from default build ([9573134](https://github.com/zenprotocol/Zulib/commit/9573134d4f745c4e8ee24faced732e86ce05f4ae))
 * Sha3.updateByteArray ([905f073](https://github.com/zenprotocol/Zulib/commit/905f073c6224e245c96f8b41e6ca5b4d155658a4))
-
-
