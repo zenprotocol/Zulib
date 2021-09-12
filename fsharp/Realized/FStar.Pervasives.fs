@@ -24,8 +24,13 @@ module Native =
     let fst = fst
     let snd = snd
 
+    // The __proj__Mktuple2__1 and __proj__Mktuple2__2 functions don't seem to be connected to anything in ZF*.
     let __proj__Mktuple2__1 = fst
     let __proj__Mktuple2__2 = snd
+
+    // Extracted from Mktuple2?._1 and Mktuple2?._2
+    let __proj__Mktuple2__item___1 = fst
+    let __proj__Mktuple2__item___2 = snd
 
     type ('a,'b,'c) tuple3 =
      'a* 'b* 'c
