@@ -74,3 +74,5 @@ let to_string (x : t) : Prims.string =
 
 //let to_string_hex s = Printf.sprintf "%02x" s
 //let to_int s = s
+
+let __uint_to_t = uint_to_t
